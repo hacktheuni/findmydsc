@@ -1,0 +1,56 @@
+{% extends base %}
+{% block myProfileActive %} active open {% endblock myProfileActive %}
+{% block userActive %} active {% endblock userActive %}
+{% block title %} Add User - FindMyDSC {% endblock title %}
+{% block container %}
+<!-- Bordered Table -->
+<div class="card">
+  <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+    <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+      <i class="bx bx-menu bx-sm"></i>
+    </a>
+  </div>
+  <h3 class="card-header">Add User</h3>
+  <div class="card-body">
+    <form action="{% url 'addUser' %}" method="POST" id="myForm">
+      {% csrf_token %}
+      <div class="row">
+        <div class="mb-3 col-md-6">
+          <label class="form-label">User Name</label>
+          <input class="form-control" type="text" name="userName" oninput="validateField(this)" id="name" value="{{form_data.userName|default:''}}"
+            placeholder="User" autofocus />
+          <span id="nameError" class="error-message"></span>
+        </div>
+        <div class="mb-3 col-md-6">
+          <label class="form-label">Phone Number</label>
+          <div class="input-group input-group-merge">
+            <span class="input-group-text">IN (+91)</span>
+            <input type="number" name="userPhone" class="form-control" id="phone" value="{{form_data.userPhone|default:''}}"  oninput="validateField(this)" placeholder="12345 67890" />
+          </div>
+          <span id="phoneError" class="error-message"></span>
+        </div>
+        <div class="mb-3 col-md-6">
+          <label class="form-label">User ID</label>
+          <input class="form-control" type="text" name="userUsername" id="username" oninput="validateField(this)" value="{{form_data.userUsername|default:''}}" placeholder="user453" />
+          <span id="usernameError" class="error-message"></span>
+        </div>
+        <div class="mb-3 col-md-6 form-password-toggle">
+          <label class="form-label">Password</label>
+          <div class="input-group input-group-merge">
+            <input type="password" class="form-control" name="userPassword" oninput="validateField(this)" id="password"
+              placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
+              aria-describedby="password" />
+            <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
+          </div>
+          <span id="passwordError" class="error-message"></span>
+        </div>
+        <div class="mt-2">
+          <button type="submit" class="btn btn-primary me-2">Save</button>
+          <button type="reset" class="btn btn-outline-secondary">Cancel</button>
+        </div>
+    </form>
+  </div>
+</div>
+
+<!--/ Bordered Table -->
+{% endblock container %}

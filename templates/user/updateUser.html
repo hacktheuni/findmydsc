@@ -1,0 +1,85 @@
+{% extends base %}
+{% block myProfileActive %} active open {% endblock myProfileActive %}
+{% block userActive %} active {% endblock userActive %}
+{% block title %} Update User - FindMyDSC {% endblock title %}
+{% block container %}
+<!-- Bordered Table -->
+<div class="card">
+  <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+    <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+      <i class="bx bx-menu bx-sm"></i>
+    </a>
+  </div>
+  <h3 class="card-header">Update User</h3>
+  <div class="card-body">
+    <form action="{% url 'updateUser' user.userID %}" method="POST" id="myForm">
+      {% csrf_token %}
+      <div class="row">
+        <div class="mb-3 col-md-6">
+          <label class="form-label">User Name</label>
+          <input class="form-control" type="text" name="userName" value="{{user.userName}}"
+            oninput="validateField(this)" id="name" placeholder="Dinesh Gehlot" autofocus />
+          <span id="nameError" class="error-message"></span>
+        </div>
+        <div class="mb-3 col-md-6">
+          <label class="form-label">Phone Number</label>
+          <div class="input-group input-group-merge">
+            <span class="input-group-text">IN (+91)</span>
+            <input type="text" name="userPhone" id="phone" oninput="validateField(this)" value="{{user.userPhone}}" class="form-control"
+              placeholder="202 555 0111" />
+          </div>
+          <span id="phoneError" class="error-message"></span>
+        </div>
+        <div class="mb-3 col-md-6">
+          <label class="form-label">User ID</label>
+          <input class="form-control" type="text" name="userUsername" value="{{user.userUsername}}"
+            placeholder="dinesh453" />
+        </div>
+        <div class="mb-3 col-md-6 form-password-toggle">
+          <label class="form-label">Password</label>
+          <div class="input-group input-group-merge">
+            <input type="password" class="form-control" name="userPassword" value="{{user.userPassword}}"
+              oninput="validateField(this)" id="password"
+              placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
+              aria-describedby="password" />
+            <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
+          </div>
+          <span id="passwordError" class="error-message"></span>
+        </div>
+        <div class="mt-2">
+          <button type="submit" onclick="handleFormSubmit(event)" class="btn btn-primary me-2">Save</button>
+          <button type="reset" class="btn btn-outline-secondary">Cancel</button>
+        </div>
+    </form>
+  </div>
+</div>
+<div class="card">
+  <h4 class="card-header">User History</h4>
+  <div class="card-body">
+    <div class="table-responsive mt-3" style="max-height: calc(100vh - 199px);min-height: 5rem;">
+      <table class="table table-bordered" id="myTable">
+        <thead class="sticky-top bg-white">
+          <tr>
+            <th style="width: 30rem;">User Name</th>
+            <th style="min-width: 9rem;width: 12rem;">Phone No</th>
+            <th style="min-width: 10rem;width: 10rem;">UserName</th>
+            <th style="width: 11rem;min-width: 10rem;">Modified Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in userHistory %}
+          <tr>
+            <td>{{user.userName}}</td>
+            <td>{{user.userPhone}}</td>
+            <td>{{user.userUsername}}</td>
+            <td>{{user.userModifiedDate|date:"d-m-Y H:i:s"}}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!--/ Bordered Table -->
+{% endblock container %}

@@ -1,0 +1,119 @@
+{% extends base %}
+{% block contactActive %} active open {% endblock contactActive %}
+{% block feedBackActive %} active {% endblock feedBackActive %}
+{% block title %} Give Feedback - FindMyDSC {% endblock title %}
+{% block container %}
+
+
+
+<style>
+    .feedback-text {
+        text-align: center;
+    }
+
+    .star {
+        font-size: 5vh;
+        cursor: pointer;
+    }
+
+    .Main-heading {
+        padding-top: 5px;
+        margin-bottom: 6px;
+    }
+
+    .msg-text {
+        margin-top: 1rem;
+        text-align: justify;
+    }
+
+    .stars-container {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .starColor {
+        color: rgb(24, 159, 14);
+    }
+</style>
+<div class="row">
+    <div class="col-3"></div>
+    <div class="mb-3 col-6">
+        <div class="card">
+            <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+                <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)"><i class="bx bx-menu bx-sm"></i></a>
+            </div>
+            <div class="card-body">
+                <h3 class="feedback-text">Rate your experience</h3>
+                <br>
+                <p class="feedback-text">We highly value your feedback! Kindly take a moment to <br> rate your
+                    experience and provide us with your valuable feedback.</p>
+                <div class="stars-container">
+                    <span onclick="gfg(1)" class="star starColor">★
+                    </span>
+                    <span onclick="gfg(2)" class="star starColor">★
+                    </span>
+                    <span onclick="gfg(3)" class="star starColor">★
+                    </span>
+                    <span onclick="gfg(4)" class="star starColor">★
+                    </span>
+                    <span onclick="gfg(5)" class="star starColor">★
+                    </span>
+                </div>
+                <h4 id="output" class="feedback-text">Rating is: 5/5</h4>
+
+                <hr class="my-4">
+                <form method="POST" action="{% url 'feedBack' %}">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <input type="hidden" name="rating" id="rating-input" value="5">
+                        <textarea class="form-control" placeholder="Tell us about your experience!" name="feedBack"
+                            rows="8"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary me-2">Submit</button>
+                    <button type="reset" class="btn btn-outline-secondary">Cancel</button>
+                </form>
+
+                <div class="row justify-content-start mt-3">
+                    <div class="col-sm-10">
+                        <span class="mb-0 me-2 fs-5">Contact us :</span>
+                        <span><a href="https://findmydsc@gmail.com"> findmydsc@gmail.com</a>
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let stars = document.getElementsByClassName("star");
+    let output = document.getElementById("output");
+
+    // Funtion to update rating
+    function gfg(n) {
+        remove();
+        for (let i = 0; i < n; i++) {
+            let cls;
+            if (n == 1) cls = "starColor";
+            else if (n == 2) cls = "starColor";
+            else if (n == 3) cls = "starColor";
+            else if (n == 4) cls = "starColor";
+            else if (n == 5) cls = "starColor";
+            stars[i].className = "star " + cls;
+        }
+        output.innerText = "Rating is: " + n + "/5";
+        document.getElementById("rating-input").value = n;
+    }
+
+    function remove() {
+        let i = 0;
+        while (i < 5) {
+            stars[i].className = "star";
+            i++;
+        }
+    }
+</script>
+
+{% endblock container %}

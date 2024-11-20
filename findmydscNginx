@@ -1,0 +1,36 @@
+# Redirect HTTP to HTTPS
+server {
+    listen 80;
+    server_name www.findmydsc.in;
+    
+    # Redirect all HTTP requests to HTTPS
+    return 301 https://$host$request_uri;
+}
+
+# HTTPS server block
+server {
+    listen 443 ssl;
+    server_name www.findmydsc.in;
+
+    # Serve static files (Use 'alias' instead of 'root')
+    location /static/ {
+        alias /home/ubuntu/findMyDSC/static/;
+    }
+
+    # Serve media files if you have any
+    location /media/ {
+        alias /home/ubuntu/findMyDSC/media/;
+    }
+
+    # Proxy requests to Gunicorn
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/run/gunicorn.sock;
+    }
+
+    # SSL configuration - Managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/www.findmydsc.in/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/www.findmydsc.in/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+}
