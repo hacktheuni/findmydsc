@@ -1,0 +1,235 @@
+@charset "UTF-8";
+.layout-wrapper:not(.layout-horizontal) .bg-menu-theme .menu-inner .menu-item .menu-link {
+  border-radius: 0.375rem;
+}
+.layout-wrapper:not(.layout-horizontal) .bg-menu-theme .menu-inner > .menu-item.active:before {
+  content: "";
+  position: absolute;
+  right: 0;
+  width: 0.25rem;
+  height: 2.5rem;
+  border-radius: 0.375rem 0 0 0.375rem;
+}
+.bg-menu-theme .menu-sub > .menu-item > .menu-link:before {
+  content: "";
+  position: absolute;
+  left: 1.4375rem;
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 50%;
+}
+.bg-menu-theme .menu-sub > .menu-item.active > .menu-link:not(.menu-toggle):before {
+  left: 1.1875rem;
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.app-brand .layout-menu-toggle {
+  position: absolute;
+  left: 12.5rem;
+  border-radius: 50%;
+}
+.app-brand .layout-menu-toggle i {
+  width: 1.5rem;
+  height: 1.5rem;
+  transition: all 0.3s ease-in-out;
+}
+@media (max-width: 1199.98px) {
+  .app-brand .layout-menu-toggle {
+    display: none !important;
+  }
+}
+
+.text-body[href]:hover {
+  color: #5f61e6 !important;
+}
+
+.list-group-item.active, .list-group-item.active:hover, .list-group-item.active:focus {
+  border-color: #696cff;
+  background-color: #696cff;
+}
+
+.btn-primary {
+  color: #fff;
+  background-color: #696cff;
+  border-color: #696cff;
+  box-shadow: 0 0.125rem 0.25rem 0 rgba(105, 108, 255, 0.4);
+}
+.btn-primary:hover {
+  color: #fff;
+  background-color: #5f61e6;
+  border-color: #5f61e6;
+  transform: translateY(-1px);
+}
+ .btn-primary:focus {
+  color: #fff;
+  background-color: #5f61e6;
+  border-color: #5f61e6;
+  transform: translateY(0);
+  box-shadow: none;
+}
+ .btn-primary:active, .btn-primary.active {
+  color: #fff;
+  background-color: #595cd9;
+  border-color: #595cd9;
+}
+ .btn-primary:active:focus, .btn-primary.active:focus {
+  box-shadow: none;
+}
+.btn-primary.disabled, .btn-primary:disabled {
+  box-shadow: none;
+}
+
+.btn-outline-primary {
+  color: #696cff;
+  border-color: #696cff;
+  background: transparent;
+}
+.btn-outline-primary:hover {
+  color: #fff;
+  background-color: #5f61e6;
+  border-color: #5f61e6;
+  box-shadow: 0 0.125rem 0.25rem 0 rgba(105, 108, 255, 0.4);
+  transform: translateY(-1px);
+}
+ .btn-outline-primary:focus {
+  color: #fff;
+  background-color: #5f61e6;
+  border-color: #5f61e6;
+  box-shadow: none;
+  transform: translateY(0);
+}
+ .btn-outline-primary:active, .btn-outline-primary.active {
+  color: #fff;
+  background-color: #595cd9;
+  border-color: #595cd9;
+}
+ .btn-outline-primary:active:focus, .btn-outline-primary.active:focus {
+  box-shadow: none;
+}
+.btn-outline-primary.disabled, .btn-outline-primary:disabled {
+  box-shadow: none;
+}
+
+.nav .nav-link:hover, .nav .nav-link:focus {
+  color: #5f61e6;
+}
+
+.nav-pills .nav-link.active, .nav-pills .nav-link.active:hover, .nav-pills .nav-link.active:focus {
+  background-color: #696cff;
+  color: #fff;
+  box-shadow: 0 2px 4px 0 rgba(105, 108, 255, 0.4);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #696cff;
+}
+
+.input-group:focus-within .form-control,
+.input-group:focus-within .input-group-text {
+  border-color: #696cff;
+}
+
+.form-check-input:focus {
+  border-color: #696cff;
+  box-shadow: 0 2px 4px 0 rgba(105, 108, 255, 0.4);
+}
+.form-check-input:disabled {
+  background-color: #eceef1;
+}
+.form-check-input:checked, .form-check-input[type=checkbox]:indeterminate {
+  background-color: #696cff;
+  border-color: #696cff;
+  box-shadow: 0 2px 4px 0 rgba(105, 108, 255, 0.4);
+}
+
+.form-control:focus ~ .form-label {
+  border-color: #696cff;
+}
+.form-control:focus ~ .form-label::after {
+  border-color: inherit;
+}
+
+a {
+  color: #696cff;
+}
+a:hover {
+  color: #787bff;
+}
+
+.bg-menu-theme {
+  background-color: #fff !important;
+  color: #697a8d;
+}
+.bg-menu-theme .menu-link {
+  color: #697a8d;
+}
+.bg-menu-theme .menu-link:hover, .bg-menu-theme .menu-link:focus {
+  color: #566a7f;
+}
+.bg-menu-theme .menu-link.active {
+  color: #566a7f;
+}
+.bg-menu-theme .menu-item.disabled .menu-link {
+  color: #a5afbb !important;
+}
+.bg-menu-theme .menu-item.open:not(.menu-item-closing) > .menu-toggle,
+.bg-menu-theme .menu-item.active > .menu-link {
+  color: #566a7f;
+}
+.bg-menu-theme .menu-item.active > .menu-link:not(.menu-toggle) {
+  background-color: #fff;
+}
+.bg-menu-theme .menu-inner-shadow {
+  background: linear-gradient(#fff 41%, rgba(255, 255, 255, 0.11) 95%, rgba(255, 255, 255, 0));
+}
+.bg-menu-theme hr,
+.bg-menu-theme .menu-inner > .menu-item.open > .menu-sub::before {
+  border-color: transparent !important;
+}
+.bg-menu-theme .menu-inner > .menu-item.open .menu-item.open > .menu-toggle::before {
+  background-color: white;
+}
+.bg-menu-theme .menu-inner > .menu-item.open .menu-item.active > .menu-link::before {
+  background-color: #566a7f;
+}
+.bg-menu-theme .menu-inner > .menu-item.open .menu-item.open > .menu-toggle::before,
+.bg-menu-theme .menu-inner > .menu-item.open .menu-item.active > .menu-link::before {
+  box-shadow: 0 0 0 2px #fff;
+}
+.bg-menu-theme.menu-vertical {
+  box-shadow: 0 0.125rem 0.375rem 0 rgba(161, 172, 184, 0.12);
+}
+html:not(.layout-menu-collapsed) .bg-menu-theme .menu-inner .menu-item.open > .menu-link,
+html:not(.layout-menu-collapsed) .bg-menu-theme .menu-inner .menu-item .menu-link:not(.active):hover {
+  background-color: rgba(67, 89, 113, 0.04);
+}
+.bg-menu-theme .menu-inner .menu-sub > .menu-item.active > .menu-link.menu-toggle {
+  background-color: rgba(67, 89, 113, 0.04);
+}
+.bg-menu-theme .menu-inner .menu-sub > .menu-item.active .menu-icon {
+  color: #696cff;
+}
+.bg-menu-theme .menu-inner > .menu-item.active > .menu-link {
+  color: #696cff;
+  background-color: rgba(105, 108, 255, 0.16) !important;
+}
+.bg-menu-theme .menu-inner > .menu-item.active:before {
+  background: #696cff;
+}
+.bg-menu-theme .menu-sub > .menu-item > .menu-link:before {
+  background-color: #b4bdc6 !important;
+}
+.bg-menu-theme .menu-sub > .menu-item.active > .menu-link:not(.menu-toggle):before {
+  background-color: #696cff !important;
+  border: 3px solid #e7e7ff !important;
+}
+
+.app-brand .layout-menu-toggle {
+  background-color: #696cff;
+  border: 7px solid #f5f5f9;
+}
+.app-brand .layout-menu-toggle i {
+  color: #fff;
+}

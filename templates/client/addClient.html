@@ -1,0 +1,217 @@
+{% extends base %}
+{% block masterActive %} active open {% endblock masterActive %}
+{% block clientActive %} active {% endblock clientActive %}
+{% block title %} Add Client - FindMyDSC {% endblock title %}
+{% block container %}
+<!-- Bordered Table -->
+<style>
+  .dropdown-container {
+    position: relative;
+    display: inline-block;
+  }
+
+  .dropdown-values {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    width: 45%;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    height: auto;
+    max-height: 25rem;
+    overflow-y: auto;
+  }
+
+  .dropdown-values div {
+    color: black;
+    padding: .2rem .5rem;
+    text-decoration: none;
+    display: block;
+    cursor: pointer;
+  }
+
+  .dropdown-values div:hover {
+    background-color: #f1f1f1;
+  }
+
+  .dropdown-values div.highlight {
+    background-color: #dcdcdc;
+  }
+</style>
+<div class="card">
+  <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+    <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+      <i class="bx bx-menu bx-sm"></i>
+    </a>
+  </div>
+  <h3 class="card-header">Add Client</h3>
+  <div class="card-body">
+    <form action="{% url 'addClient' %}" method="POST">
+      {% csrf_token %}
+      <div class="row">
+        <div class="mb-3 col-md-6">
+          <labelclass="form-label">Client Name</label>
+            <input class="form-control" type="text" name="clientName" placeholder="CLIENT1" value="{{form_data.clientName|default:''}}" required autofocus/>
+        </div>
+        <div class="mb-3 col-md-6">
+          <label for="lastName" class="form-label">Company Name</label>
+          <input type="text" class="companyName form-control" placeholder="COMPANY1" name="companyName" value="{{form_data.companyName|default:''}}"
+            id="companyName" onfocus="showDropdown()" onkeyup="fetchAndCheckCompanyName()" oninput="filterFunction()"
+            onclick="showDropdown()" autocomplete="off" required>
+          <div class="dropdown-arrow" onclick="toggleDropdown()"></div>
+          <div class="dropdown-values" id="dropdown-values" style="display: none;">
+            {% if companies %}
+              {% for company in companies %}
+              <div onclick="selectValue('{{company.companyName}}')">{{company.companyName}}</div>
+              {% endfor %}
+            {% else %}
+              <p class="mb-0 mt-0" style="font-size: 1rem;">companies not for adding client</p>
+            {% endif %}
+          </div>
+        </div>
+        <div class="mb-3 col-md-6">
+          <label class="form-label">Phone Number</label>
+          <div class="input-group input-group-merge">
+            <span class="input-group-text">IN (+91)</span>
+            <input type="number" name="clientPhone" id="phone" oninput="validateField(this)" class="form-control" value="{{form_data.clientPhone|default:''}}" placeholder="12345 67890" />
+          </div>
+          <span id="phoneError" class="error-message"></span>
+        </div>
+        <div class="mt-2">
+          <button type="submit" class="btn btn-primary me-2">Save</button>
+          <button type="reset" class="btn btn-outline-secondary">Reset</button>
+        </div>
+    </form>
+  </div>
+</div>
+
+<!--/ Bordered Table -->
+<script>
+  let autoCompleted = false;
+  let currentFocus = -1;
+  let preventAutoComplete = false;
+
+  function toggleDropdown() {
+    const dropdown = document.getElementsByClassName('drop-values');
+    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+  }
+
+  function showDropdown() {
+    const dropdown = document.getElementById('dropdown-values');
+    dropdown.style.display = 'block';
+  }
+
+  function selectValue(value) {
+    const input = document.getElementById('companyName');
+    input.value = value;
+    fetchAndCheckCompanyName();
+    closeDropdown();
+    filterFunction(); // Update dropdown values to show only the selected value
+    preventAutoComplete = true;
+  }
+
+  function filterFunction() {
+    const input = document.getElementById('companyName');
+    const filter = input.value.toLowerCase();
+    const dropdown = document.getElementById('dropdown-values');
+    const values = dropdown.getElementsByTagName('div');
+
+    let visibleCount = 0;
+    let lastVisibleValue = '';
+
+    for (let i = 0; i < values.length; i++) {
+      const txtValue = values[i].textContent || values[i].innerText;
+      if (txtValue.toLowerCase().indexOf(filter) > -1) {
+        values[i].style.display = "";
+        visibleCount++;
+        lastVisibleValue = txtValue;
+      } else {
+        values[i].style.display = "none";
+      }
+    }
+
+    if (visibleCount === 1 && filter !== '' && !preventAutoComplete) {
+      autoCompleted = true;
+      input.value = lastVisibleValue;
+    } else {
+      autoCompleted = false;
+    }
+
+    preventAutoComplete = false;
+
+    // Show all dropdown values if the input is empty
+    if (filter === '') {
+      for (let i = 0; i < values.length; i++) {
+        values[i].style.display = "";
+      }
+      dropdown.style.display = 'block';
+    } else {
+      // Hide the dropdown if no values are visible
+      dropdown.style.display = visibleCount > 0 ? 'block' : 'none';
+    }
+  }
+
+  function closeDropdown() {
+    const dropdown = document.getElementById('dropdown-values');
+    dropdown.style.display = 'none';
+  }
+
+  document.getElementById('companyName').addEventListener('keydown', function (event) {
+    const dropdown = document.getElementById('dropdown-values');
+    const values = dropdown.getElementsByTagName('div');
+
+    if (autoCompleted && event.key !== "Tab" && event.key !== "Shift" && event.key !== "Control" && event.key !== "Backspace") {
+      autoCompleted = false;
+    }
+
+    // Check if input is cleared and show all dropdown values
+    setTimeout(function () {
+      if (event.target.value === '') {
+        for (let i = 0; i < values.length; i++) {
+          values[i].style.display = "";
+        }
+      }
+    }, 0);
+
+    // Keyboard navigation
+    if (event.key === "ArrowDown") {
+      currentFocus++;
+      addActive(values);
+    } else if (event.key === "ArrowUp") {
+      currentFocus--;
+      addActive(values);
+    } else if (event.key === "Enter") {
+      event.preventDefault();
+      if (currentFocus > -1) {
+        if (values[currentFocus]) values[currentFocus].click();
+      }
+    } else if (event.key === "Backspace") {
+      preventAutoComplete = true;
+    }
+  });
+
+  function addActive(values) {
+    if (!values) return false;
+    removeActive(values);
+    if (currentFocus >= values.length) currentFocus = 0;
+    if (currentFocus < 0) currentFocus = values.length - 1;
+    values[currentFocus].classList.add("highlight");
+  }
+
+  function removeActive(values) {
+    for (let i = 0; i < values.length; i++) {
+      values[i].classList.remove("highlight");
+    }
+  }
+
+  // Close the dropdown if the user clicks outside of it
+  document.addEventListener('click', function (event) {
+    const dropdown = document.getElementById('dropdown-values');
+    const input = document.getElementById('companyName');
+    const arrow = document.querySelector('.dropdown-arrow');
+    if (!input.contains(event.target) && !arrow.contains(event.target)) {
+      dropdown.style.display = 'none';
+    }
+  });
+</script>
+{% endblock container %}

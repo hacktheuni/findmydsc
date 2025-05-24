@@ -1,0 +1,682 @@
+{% extends base %}
+{% block pendingWorkActive %} active {% endblock pendingWorkActive %}
+{% block title %} Add Pending Work - FindMyDSC {% endblock title %}
+{% block container %}
+<!-- Bordered Table -->
+
+<style>
+  .dropdown-container {
+    position: relative;
+    display: inline-block;
+  }
+
+  .dropdown-values {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    height: auto;
+    max-height: 25rem;
+    overflow-y: auto;
+  }
+
+  .dropdown-values div {
+    color: black;
+    padding: .2rem .5rem;
+    text-decoration: none;
+    display: block;
+    cursor: pointer;
+  }
+
+  .dropdown-values div:hover {
+    background-color: #f1f1f1;
+  }
+
+  .dropdown-values div.highlight {
+    background-color: #dcdcdc;
+  }
+</style>
+<div class="card">
+  <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+    <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+      <i class="bx bx-menu bx-sm"></i>
+    </a>
+  </div>
+  <h3 class="card-header">Add Pending Work</h3>
+  <div class="card-body">
+    <form action="{% url 'addPendingWork' %}" method="POST">
+      {% csrf_token %}
+      <div class="row">
+        <div class="mb-3 col-md-6">
+          <label class="form-label">Company Name</label>
+          <input type="text" class="companyName form-control" placeholder="COMPANY1" name="companyName" value="{{form_data.companyName|default:''}}" id="companyName"
+            onfocus="showDropdown()" onkeyup="fetchAndCheckCompanyName()" oninput="filterFunction()"
+            onclick="showDropdown()" autocomplete="off" required>
+          <div class="dropdown-arrow" onclick="toggleDropdown()"></div>
+          <div class="dropdown-values col-md-5" id="dropdown-values" style="display: none;">
+            {% for company in companies %}
+            <div onclick="selectValue('{{company.companyName}}')">{{company.companyName}}</div>
+            {% endfor %}
+          </div>
+          <div id="messageBox"></div>
+        </div>
+        <div class="mb-3 col-md-6">
+          <label class="form-label">Group Name</label>
+          <input class="form-control" type="text" name="groupName" id="groupName" value="{{form_data.groupName|default:''}}" disabled required />
+        </div>
+        <div class="mb-3 col-md-3">
+          <label class="form-label">Form No.</label>
+          <input type="text" class="formNo form-control" placeholder="Form 4" name="formNo" value="{{form_data.formNo|default:''}}" id="formNo"
+            onfocus="formShowDropdown()" onkeyup="fetchAndCheckFormDetails()" oninput="formFilterFunction()"
+            onclick="formShowDropdown()" autocomplete="off" required>
+          <div class="drop-arrow" onclick="formToggleDropdown()"></div>
+          <div class="dropdown-values col-md-2" id="drop-values" style="display: none;">
+            {% for form in forms %}
+            <div onclick="formSelectValue('{{form.formNo}}')">{{form.formNo}}</div>
+            {% endfor %}
+          </div>
+          <div id="messageBoxForm"></div>
+        </div>
+        <div class="mb-3 col-md-3">
+          <label class="form-label">Details of the work</label>
+          <input class="form-control" type="text" id="matter" placeholder="..." name="matter" value="{{form_data.matter|default:''}}" required />
+        </div>
+        <div class="mb-3 col-md-3">
+          <label class="form-label">Event Date</label>
+          <input class="form-control" type="date" name="eventDate" value="{{form_data.eventDate|default:''}}"/>
+        </div>
+        <div class="mb-3 col-md-3">
+          <label class="form-label">Internal Cut Off Time</label>
+          <input class="form-control" type="number" placeholder="7" name="cutOffTime" value="{{form_data.cutOffTime|default:''}}" />
+        </div>
+        <input type="hidden" id="filingDays" name="filingDays" value="{{form_data.filingDays|default:''}}"/>
+        <div class="mb-3 col-md-3">
+          <label class="form-label">Actual Due Date</label>
+          <input class="form-control" type="date" name="actualDueDate" value="{{form_data.actualDueDate|default:''}}"/>
+        </div>
+        <div class="mb-3 col-md-3">
+          <label class="form-label">Internal Due Date</label>
+          <input class="form-control" type="date" name="internalDueDate" value="{{form_data.internalDueDate|default:''}}"/>
+        </div>
+        <div class="mb-3 col-md-3">
+          <label class="form-label">Responsible Person</label>
+          <input type="text" class="user form-control" placeholder="USER 1" name="userID" value="{{form_data.userName|default:''}}" id="user"
+            onfocus="userShowDropdown()" oninput="userFilterFunction()"
+            onclick="userShowDropdown()" autocomplete="off" required>
+          <div class="dropArrow" onclick="userToggleDropdown()"></div>
+          <div class="dropdown-values col-md-3" id="drop" style="display: none;">
+            {% for usr in users %}
+            <div onclick="userSelectValue('{{usr.userName}}')">{{usr.userName}}</div>
+            {% endfor %}
+          </div>
+          <div id="messageBoxUser"></div>
+        </div>
+        <div class="mb-3 col-md-3">
+          <label class="form-label">Status</label>
+          <select name="status" class="form-select" id="status" required>
+            <option value="" disabled>Select Status</option>
+            <option value="Doc. Pending From Client Side" {% if form_data.status == 'Doc. Pending From Client Side' %}selected{% endif %}>Doc. Pending From Client Side</option>
+            <option value="Mailed For Sign" {% if form_data.status == 'Mailed For Sign' %}selected{% endif %}>Mailed For Sign</option>
+            <option value="Signed Doc. Received" {% if form_data.status == 'Signed Doc. Received' %}selected{% endif %}>Signed Doc. Received</option>
+            <option value="Pending For Payment" {% if form_data.status == 'Pending For Payment' %}selected{% endif %}>Pending For Payment</option>
+            <option value="Pending For Approval " {% if form_data.status == 'Pending For Approval' %}selected{% endif %}>Pending For Approval</option>
+            <option value="Sent For Resubmission" {% if form_data.status == 'Sent For Resubmission' %}selected{% endif %}>Sent For Resubmission</option>
+            <option value="Approved" {% if form_data.status == 'Approved' %}selected{% endif %}>Approved</option>
+            <option value="Rejected" {% if form_data.status == 'Rejected' %}selected{% endif %}>Rejected</option>
+            <option value="System Error" {% if form_data.status == 'System Error' %}selected{% endif %}>System Error</option>
+            <option value="Pending For DSC" {% if form_data.status == 'Pending For DSC' %}selected{% endif %}>Pending For DSC</option>
+            <option value="Kept on Hold" {% if form_data.status == 'Kept on Hold' %}selected{% endif %}>Kept on Hold</option>
+            <option value="Pending at our end" {% if form_data.status == 'Pending at our end' %}selected{% endif %}>Pending at our end</option>
+          </select>
+        </div>
+        <div class="mb-3 col-md-2 ">
+          <label class="form-label">SRN Date</label>
+          <input class="form-control" type="date" name="srnDate" value="{{form_data.srnDate|default:''}}"/>
+        </div>
+        <div class="mb-3 col-md-2">
+          <label class="form-label">SRN No.</label>
+          <input class="form-control" type="text" placeholder="999" name="srnNo" value="{{form_data.srnNo|default:''}}" />
+        </div>
+        <div class="mb-3 col-md-2">
+          <label class="form-label">Amount</label>
+          <input class="form-control" type="number" placeholder="999" name="amt" value="{{form_data.amt|default:''}}" />
+        </div>
+        <div class="mb-3 col-md-2">
+          <label class="form-label">Billing</label>
+          <select name="billing" class="form-select" id="billing" required>
+            <option value="Pending" {% if form_data.status == 'Pending' %}selected{% endif %}>Pending</option>
+            <option value="Generated" {% if form_data.status == 'Generated' %}selected{% endif %}>Generated</option>
+            <option value="Mailed" {% if form_data.status == 'Mailed' %}selected{% endif %}>Mailed</option>
+            <option value="Received" {% if form_data.status == 'Received' %}selected{% endif %}>Received</option>
+          </select>
+        </div>
+        <div class="mb-3 col-md-2">
+          <label class="form-label">Prof. Fees</label>
+          <input class="form-control" type="number" placeholder="9999" name="fees" value="{{form_data.fees|default:''}}" />
+        </div>
+        <div class="mb-3 col-md-2">
+          <label class="form-label">Remark</label>
+          <input class="form-control" type="text" placeholder="Good..." name="remark" value="{{form_data.remark|default:''}}" />
+        </div>
+        <div class="mb-3 col-md-1">
+          <label class="form-label">Archive</label>
+          <input class="form-check-input form-control" name="isArchived" type="checkbox" id="archive" value="True" />  
+        </div>
+        <div class="mb-3 col-md-1">
+          <label class="form-label">Pin</label>
+          <input class="form-check-input form-control" name="isPinned" type="checkbox" id="pin" value="True"/>
+        </div>
+        <div class="mt-2">
+          <button type="submit" class="btn btn-primary me-2">Save</button>
+          <button type="reset" class="btn btn-outline-secondary">Reset</button>
+        </div>
+    </form>
+  </div>
+</div>
+
+
+<!-- fetching data func -->
+<script>
+  function fetchAndCheckCompanyName() {
+    let companyName = $('#companyName').val(); // Get the company name input value
+    let csrfToken = $('[name=csrfmiddlewaretoken]').val(); // Get the CSRF token
+
+    $.ajax({
+      url: "{% url 'fetchGroupName' %}",
+      type: "POST",
+      data: {
+        'companyName': companyName,
+        'csrfmiddlewaretoken': csrfToken
+      },
+      success: function (response) {
+        if (response.status === 'success') {
+          // Update group name
+          $('#groupName').val(response.group_name);
+
+          // Clear message box
+          $('#messageBox').text('');
+        } else {
+          // Display error message
+          $('#groupName').val('');
+          $('#messageBox').text('Company name does not exist in the database!');
+          $('#messageBox').css('color', 'red');
+        }
+      },
+      error: function (xhr, status, error) {
+        console.error("Failed to fetch data: " + xhr.statusText);
+      }
+    });
+  }
+
+  function fetchAndCheckFormDetails() {
+    let formNo = $('#formNo').val(); // Get the company name input value
+    let csrfToken = $('[name=csrfmiddlewaretoken]').val(); // Get the CSRF token
+
+    $.ajax({
+      url: "{% url 'fetchFormDetails' %}",
+      type: "POST",
+      data: {
+        'formNo': formNo,
+        'csrfmiddlewaretoken': csrfToken
+      },
+      success: function (response) {
+        if (response.status === 'success') {
+          // Update group name
+          $('#matter').val(response.form_matter);
+          $('#filingDays').val(response.filing_days);
+
+          // Clear message box
+          $('#messageBoxForm').text('');
+        } else {
+          // Display error message
+          $('#matter').val('');
+          $('#messageBoxForm').text('Form does not exist in the database!');
+          $('#messageBoxForm').css('color', 'red');
+        }
+      },
+      error: function (xhr, status, error) {
+        console.error("Failed to fetch data: " + xhr.statusText);
+      }
+    });
+  }
+</script>
+
+
+<!-- date calculation -->
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const eventDateInput = document.querySelector('input[name="eventDate"]');
+    const actualDueDateInput = document.querySelector('input[name="actualDueDate"]');
+    const internalDueDateInput = document.querySelector('input[name="internalDueDate"]');
+    const cutOffTimeInput = document.querySelector('input[name="cutOffTime"]');
+
+    // Helper function to format a Date object as YYYY-MM-DD.
+    function formatDate(date) {
+      const year = date.getFullYear();
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const day = date.getDate().toString().padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    // Function to calculate both dates.
+    function calculateDates() {
+          // Retrieve and parse the filingDays from the hidden input.
+    let filingDays = parseInt(document.getElementById('filingDays').value, 10);
+    if (isNaN(filingDays)) {
+      filingDays = 0;  // Fallback if filingDays is not valid.
+    }
+      const eventDateValue = eventDateInput.value;
+      if (!eventDateValue) return; // No event date, nothing to calculate.
+      const eventDate = new Date(eventDateValue);
+      if (isNaN(eventDate)) {
+        console.error("Invalid event date entered.");
+        return;
+      }
+
+      // Calculate the Actual Due Date using filingDays.
+      let actualDueDate = new Date(eventDate);
+      actualDueDate.setDate(actualDueDate.getDate() + filingDays);
+      actualDueDateInput.value = formatDate(actualDueDate);
+
+      // Calculate the Internal Due Date using cutOffTime.
+      let cutOffTime = parseInt(cutOffTimeInput.value, 10);
+      if (isNaN(cutOffTime)) {
+        cutOffTime = 0; // Fallback if cutOffTime is invalid.
+      }
+      let internalDueDate = new Date(eventDate);
+      internalDueDate.setDate(internalDueDate.getDate() + cutOffTime);
+      internalDueDateInput.value = formatDate(internalDueDate);
+    }
+
+    // Listen for changes on both the event date and cutOffTime fields.
+    eventDateInput.addEventListener("change", calculateDates);
+    cutOffTimeInput.addEventListener("input", calculateDates);
+  });
+</script>
+
+<!-- company drop down -->
+<script>
+  let autoCompleted = false;
+  let currentFocus = -1;
+  let preventAutoComplete = false;
+
+  function toggleDropdown() {
+    const dropdown = document.getElementsByClassName('drop-values');
+    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+  }
+
+  function showDropdown() {
+    const dropdown = document.getElementById('dropdown-values');
+    dropdown.style.display = 'block';
+  }
+
+  function selectValue(value) {
+    const input = document.getElementById('companyName');
+    input.value = value;
+    fetchAndCheckCompanyName()
+    closeDropdown();
+    filterFunction(); // Update dropdown values to show only the selected value
+    preventAutoComplete = true;
+  }
+
+  function filterFunction() {
+    const input = document.getElementById('companyName');
+    const filter = input.value.toLowerCase();
+    const dropdown = document.getElementById('dropdown-values');
+    const values = dropdown.getElementsByTagName('div');
+
+    let visibleCount = 0;
+    let lastVisibleValue = '';
+
+    for (let i = 0; i < values.length; i++) {
+      const txtValue = values[i].textContent || values[i].innerText;
+      if (txtValue.toLowerCase().indexOf(filter) > -1) {
+        values[i].style.display = "";
+        visibleCount++;
+        lastVisibleValue = txtValue;
+      } else {
+        values[i].style.display = "none";
+      }
+    }
+
+    if (visibleCount === 1 && filter !== '' && !preventAutoComplete) {
+      autoCompleted = true;
+      input.value = lastVisibleValue;
+    } else {
+      autoCompleted = false;
+    }
+
+    preventAutoComplete = false;
+
+    // Show all dropdown values if the input is empty
+    if (filter === '') {
+      for (let i = 0; i < values.length; i++) {
+        values[i].style.display = "";
+      }
+      dropdown.style.display = 'block';
+    } else {
+      // Hide the dropdown if no values are visible
+      dropdown.style.display = visibleCount > 0 ? 'block' : 'none';
+    }
+  }
+
+  function closeDropdown() {
+    const dropdown = document.getElementById('dropdown-values');
+    dropdown.style.display = 'none';
+  }
+
+  document.getElementById('companyName').addEventListener('keydown', function (event) {
+    const dropdown = document.getElementById('dropdown-values');
+    const values = dropdown.getElementsByTagName('div');
+
+    if (autoCompleted && event.key !== "Tab" && event.key !== "Shift" && event.key !== "Control" && event.key !== "Backspace") {
+      autoCompleted = false;
+    }
+
+    // Check if input is cleared and show all dropdown values
+    setTimeout(function () {
+      if (event.target.value === '') {
+        for (let i = 0; i < values.length; i++) {
+          values[i].style.display = "";
+        }
+      }
+    }, 0);
+
+    // Keyboard navigation
+    if (event.key === "ArrowDown") {
+      currentFocus++;
+      addActive(values);
+    } else if (event.key === "ArrowUp") {
+      currentFocus--;
+      addActive(values);
+    } else if (event.key === "Enter") {
+      event.preventDefault();
+      if (currentFocus > -1) {
+        if (values[currentFocus]) values[currentFocus].click();
+      }
+    } else if (event.key === "Backspace") {
+      preventAutoComplete = true;
+    }
+  });
+
+  function addActive(values) {
+    if (!values) return false;
+    removeActive(values);
+    if (currentFocus >= values.length) currentFocus = 0;
+    if (currentFocus < 0) currentFocus = values.length - 1;
+    values[currentFocus].classList.add("highlight");
+  }
+
+  function removeActive(values) {
+    for (let i = 0; i < values.length; i++) {
+      values[i].classList.remove("highlight");
+    }
+  }
+
+  // Close the dropdown if the user clicks outside of it
+  document.addEventListener('click', function (event) {
+    const dropdown = document.getElementById('dropdown-values');
+    const input = document.getElementById('companyName');
+    const arrow = document.querySelector('.dropdown-arrow');
+    if (!input.contains(event.target) && !arrow.contains(event.target)) {
+      dropdown.style.display = 'none';
+    }
+
+    const drop = document.getElementById('drop-values');
+    const inputForm = document.getElementById('formNo');
+    const arrowForm = document.querySelector('.drop-arrow');
+    if (!inputForm.contains(event.target) && !arrowForm.contains(event.target)) {
+      drop.style.display = 'none';
+    }
+
+    const dropUser = document.getElementById('drop');
+    const inputUser = document.getElementById('user');
+    const arrowUser = document.querySelector('.dropArrow');
+    if (!inputUser.contains(event.target) && !arrowUser.contains(event.target)) {
+      dropUser.style.display = 'none';
+    }
+  });
+</script>
+
+<!-- form drop down -->
+<script>
+  let autoComplete = false;
+  let currentFocused = -1;
+  let preventAutoCom = false;
+
+  function formToggleDropdown() {
+    const drop = document.getElementsByClassName('drop-values');
+    drop.style.display = drop.style.display === 'block' ? 'none' : 'block';
+  }
+
+  function formShowDropdown() {
+    const drop = document.getElementById('drop-values');
+    drop.style.display = 'block';
+  }
+
+  function formSelectValue(value) {
+    const input = document.getElementById('formNo');
+    input.value = value;
+    fetchAndCheckFormDetails()
+    formCloseDropdown();
+    formFilterFunction(); // Update drop values to show only the selected value
+    preventAutoCom = true;
+  }
+
+  function formFilterFunction() {
+    const input = document.getElementById('formNo');
+    const filter = input.value.toLowerCase();
+    const drop = document.getElementById('drop-values');
+    const values = drop.getElementsByTagName('div');
+
+    let visibleCount = 0;
+    let lastVisibleValue = '';
+
+    for (let i = 0; i < values.length; i++) {
+      const txtValue = values[i].textContent || values[i].innerText;
+      if (txtValue.toLowerCase().indexOf(filter) > -1) {
+        values[i].style.display = "";
+        visibleCount++;
+        lastVisibleValue = txtValue;
+      } else {
+        values[i].style.display = "none";
+      }
+    }
+
+    if (visibleCount === 1 && filter !== '' && !preventAutoCom) {
+      autoComplete = true;
+      input.value = lastVisibleValue;
+    } else {
+      autoComplete = false;
+    }
+
+    preventAutoCom = false;
+
+    // Show all drop values if the input is empty
+    if (filter === '') {
+      for (let i = 0; i < values.length; i++) {
+        values[i].style.display = "";
+      }
+      drop.style.display = 'block';
+    } else {
+      // Hide the drop if no values are visible
+      drop.style.display = visibleCount > 0 ? 'block' : 'none';
+    }
+  }
+
+  function formCloseDropdown() {
+    const drop = document.getElementById('drop-values');
+    drop.style.display = 'none';
+  }
+
+  document.getElementById('formNo').addEventListener('keydown', function (event) {
+    const drop = document.getElementById('drop-values');
+    const values = drop.getElementsByTagName('div');
+
+    if (autoComplete && event.key !== "Tab" && event.key !== "Shift" && event.key !== "Control" && event.key !== "Backspace") {
+      autoComplete = false;
+    }
+
+    // Check if input is cleared and show all drop values
+    setTimeout(function () {
+      if (event.target.value === '') {
+        for (let i = 0; i < values.length; i++) {
+          values[i].style.display = "";
+        }
+      }
+    }, 0);
+
+    // Keyboard navigation
+    if (event.key === "ArrowDown") {
+      currentFocused++;
+      formAddActive(values);
+    } else if (event.key === "ArrowUp") {
+      currentFocused--;
+      formAddActive(values);
+    } else if (event.key === "Enter") {
+      event.preventDefault();
+      if (currentFocused > -1) {
+        if (values[currentFocused]) values[currentFocused].click();
+      }
+    } else if (event.key === "Backspace") {
+      preventAutoCom = true;
+    }
+  });
+
+  function formAddActive(values) {
+    if (!values) return false;
+    formRemoveActive(values);
+    if (currentFocused >= values.length) currentFocused = 0;
+    if (currentFocused < 0) currentFocused = values.length - 1;
+    values[currentFocused].classList.add("highlight");
+  }
+
+  function formRemoveActive(values) {
+    for (let i = 0; i < values.length; i++) {
+      values[i].classList.remove("highlight");
+    }
+  }
+
+</script>
+
+<!-- user drop down -->
+<script>
+  let autoCom = false;
+  let currentFoc = -1;
+  let preventAuto = false;
+
+  function userToggleDropdown() {
+    const drop = document.getElementsByClassName('drop');
+    drop.style.display = drop.style.display === 'block' ? 'none' : 'block';
+  }
+
+  function userShowDropdown() {
+    const drop = document.getElementById('drop');
+    drop.style.display = 'block';
+  }
+
+  function userSelectValue(value) {
+    const input = document.getElementById('user');
+    input.value = value;
+    userCloseDropdown();
+    userFilterFunction(); // Update drop values to show only the selected value
+    preventAuto = true;
+  }
+
+  function userFilterFunction() {
+    const input = document.getElementById('user');
+    const filter = input.value.toLowerCase();
+    const drop = document.getElementById('drop');
+    const values = drop.getElementsByTagName('div');
+
+    let visibleCount = 0;
+    let lastVisibleValue = '';
+
+    for (let i = 0; i < values.length; i++) {
+      const txtValue = values[i].textContent || values[i].innerText;
+      if (txtValue.toLowerCase().indexOf(filter) > -1) {
+        values[i].style.display = "";
+        visibleCount++;
+        lastVisibleValue = txtValue;
+      } else {
+        values[i].style.display = "none";
+      }
+    }
+
+    if (visibleCount === 1 && filter !== '' && !preventAuto) {
+      autoCom = true;
+      input.value = lastVisibleValue;
+    } else {
+      autoCom = false;
+    }
+
+    preventAuto = false;
+
+    // Show all drop values if the input is empty
+    if (filter === '') {
+      for (let i = 0; i < values.length; i++) {
+        values[i].style.display = "";
+      }
+      drop.style.display = 'block';
+    } else {
+      // Hide the drop if no values are visible
+      drop.style.display = visibleCount > 0 ? 'block' : 'none';
+    }
+  }
+
+  function userCloseDropdown() {
+    const drop = document.getElementById('drop');
+    drop.style.display = 'none';
+  }
+
+  document.getElementById('user').addEventListener('keydown', function (event) {
+    const drop = document.getElementById('drop');
+    const values = drop.getElementsByTagName('div');
+
+    if (autoCom && event.key !== "Tab" && event.key !== "Shift" && event.key !== "Control" && event.key !== "Backspace") {
+      autoCom = false;
+    }
+
+    // Check if input is cleared and show all drop values
+    setTimeout(function () {
+      if (event.target.value === '') {
+        for (let i = 0; i < values.length; i++) {
+          values[i].style.display = "";
+        }
+      }
+    }, 0);
+
+    // Keyboard navigation
+    if (event.key === "ArrowDown") {
+      currentFoc++;
+      userAddActive(values);
+    } else if (event.key === "ArrowUp") {
+      currentFoc--;
+      userAddActive(values);
+    } else if (event.key === "Enter") {
+      event.preventDefault();
+      if (currentFoc > -1) {
+        if (values[currentFoc]) values[currentFoc].click();
+      }
+    } else if (event.key === "Backspace") {
+      preventAuto = true;
+    }
+  });
+
+  function userAddActive(values) {
+    if (!values) return false;
+    userRemoveActive(values);
+    if (currentFoc >= values.length) currentFoc = 0;
+    if (currentFoc < 0) currentFoc = values.length - 1;
+    values[currentFoc].classList.add("highlight");
+  }
+
+  function userRemoveActive(values) {
+    for (let i = 0; i < values.length; i++) {
+      values[i].classList.remove("highlight");
+    }
+  }
+
+</script>
+{% endblock container %}

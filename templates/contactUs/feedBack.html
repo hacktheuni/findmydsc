@@ -1,0 +1,217 @@
+{% extends base %}
+{% block contactActive %} active open {% endblock contactActive %}
+{% block feedBackActive %} active {% endblock feedBackActive %}
+{% block title %} Give Feedback - FindMyDSC {% endblock title %}
+{% block container %}
+
+
+
+<style>
+    .feedback-text {
+        text-align: center;
+    }
+
+    .star {
+        font-size: 5vh;
+        cursor: pointer;
+    }
+
+    .Main-heading {
+        padding-top: 5px;
+        margin-bottom: 6px;
+    }
+
+    .msg-text {
+        margin-top: 1rem;
+        text-align: justify;
+    }
+
+    .stars-container {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .starColor {
+        color: rgb(24, 159, 14);
+    }
+
+    p {
+        font-size: 1rem;
+    }
+
+    .row ul {
+        padding-left: 4rem;
+    }
+</style>
+<div class="row">
+    <div class="col-3"></div>
+    <div class="mb-3 col-6">
+        <div class="card">
+            <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+                <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)"><i class="bx bx-menu bx-sm"></i></a>
+            </div>
+            <div class="card-body">
+                <h3 class="feedback-text">Rate your experience</h3>
+                <br>
+                <p class="feedback-text">We highly value your feedback! Kindly take a moment to <br> rate your
+                    experience and provide us with your valuable feedback.</p>
+                <div class="stars-container">
+                    <span onclick="gfg(1)" class="star starColor">★
+                    </span>
+                    <span onclick="gfg(2)" class="star starColor">★
+                    </span>
+                    <span onclick="gfg(3)" class="star starColor">★
+                    </span>
+                    <span onclick="gfg(4)" class="star starColor">★
+                    </span>
+                    <span onclick="gfg(5)" class="star starColor">★
+                    </span>
+                </div>
+                <h4 id="output" class="feedback-text">Rating is: 5/5</h4>
+
+                <hr class="my-4">
+                <form method="POST" action="{% url 'feedBack' %}">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <input type="hidden" name="rating" id="rating-input" value="5">
+                        <textarea class="form-control" placeholder="Tell us about your experience!" name="feedBack"
+                            rows="8"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary me-2">Submit</button>
+                    <button type="reset" class="btn btn-outline-secondary">Cancel</button>
+                </form>
+
+                <div class="row justify-content-start mt-3">
+                    <div class="col-sm-10">
+                        <span class="mb-0 me-2 fs-5">Contact us :</span>
+                        <span><a href="https://findmydsc@gmail.com"> findmydsc@gmail.com</a>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="row mt-5">
+                    <div class="row">
+                        <h3 class="text-center">FINDMYDSC HELPKIT</h3>
+                        <h4>1. Master</h4>
+                        <ul style="list-style: none;">
+                            <li>1.1 Group</li>
+                            <li>1.2 Company</li>
+                            <li>1.3 Phone Book</li>
+                        </ul>
+
+                        <h4>2. DSC</h4>
+
+                        <h4>3. My Profile</h4>
+                        <ul style="list-style: none;">
+                            <li><h5>3.1 Admin Details</h5>
+                                <ul style="list-style: none;">
+                                    <li>3.1.1 Profile Details</li>
+                                    <li>3.1.2 Subscription Details</li>
+                                    <li>3.1.3 Update Password</li>
+                                    <li>3.1.4 Export Data</li>
+                                    <li>3.1.5 Delete Account</li>
+                                </ul>
+                            </li>
+                            <li><h5>3.2 Manage Users</h5></li>
+                        </ul>
+
+                        <h4>4. Contact Us</h4>
+                    </div>
+                    <div class="row mt-5" style="text-align: justify;">
+
+                        <h4>1.0 Master:</h4>
+                        <ul>
+                            <li>Here there are 3 sub tabs available, which can be used for creating Master. Data saved
+                                in these
+                                Master Records can be used for repetitive uses.</li>
+                        </ul>
+
+                        <h4>1.1 Group:</h4>
+                        <ul>
+                            <li>This tab helps you to Create Group Master.</li>
+                            <li>If you have certain group of clients, you can segregate them in different groups.</li>
+                            <li>There is a default Group named “NONE”.</li>
+                        </ul>
+
+                        <h4>1.2 Company:</h4>
+                        <ul>
+                            <li>This tab helps you to create list of Company/ LLP/ Partnership Firms/ Proprietorship
+                                Firms.
+                            </li>
+                            <li>If the company belongs to any specific group then you can tag that group from Master.
+                            </li>
+                            <li>In case entity doesn’t have any specific group then you can tag NONE as entity group.
+                            </li>
+                            <li>System will not allow saving Same Company Name tagged with Same Group.</li>
+                            <li>In case same entity name belongs in different group, then that can be saved by tagging
+                                with
+                                different group.</li>
+                        </ul>
+
+                        <h4>1.3 Phone Book:</h4>
+                        <ul>
+                            <li>You can save Name and Phone Number of Person/Staff associated with any of your Company/
+                                LLP/
+                                Partnership Firms/ Proprietorship Firms.</li>
+                            <li>Once you save name and number of any person and tag with any of your client, his details
+                                will auto fetch when updating records for In or Out of any DSC.</li>
+                        </ul>
+
+                        <h4>2.0 DSC:</h4>
+                        <ul>
+                            <li><strong>Name of Client:</strong> Enter the name of person data of whose DSC is required to be maintained.</li>
+                            <li><strong>Company Name:</strong> Tag the name of Company/ LLP/ Partnership Firms/ Proprietorship Firms from the Master List.</li>
+                            <li><strong>Group Name:</strong> Details will be auto fetched as entered at the time of creation of Company/ LLP/ Partnership Firms/ Proprietorship Firms in Master Records.</li>
+                            <li><strong>Location:</strong> You can enter details where pen drive of DSC is kept like Token No./ Box No./ Drawer No.</li>
+                            <li><strong>Status:</strong> You can update the records In Or Out from this button.</li>
+                            <li><strong>Renewal Date:</strong> You can maintain the date of renewal/expiry of Digital Signature. This will help you to timely remind you for renewals and avoid last minute rush in peak periods.</li>
+                            <li><strong>Received By:</strong> Team member/ Employee of your organization can enter his/her name whenever he/she receives any DSC.</li>
+                            <li><strong>Received From:</strong> Name of the person from whom you have received DSC can be entered in this tab.</li>
+                            <li><strong>Note:</strong> Received By & Received From, both these fields will be enabled only when Status of DSC is updated to IN.</li>
+                            <li><strong>Delivered By:</strong> Team member/ Employee of your organization can enter his/her name whenever he/she hands over any DSC to client.</li>
+                            <li><strong>Delivered To:</strong> Name of the person to whom you have handed over DSC can be entered in this tab.</li>
+                            <li><strong>Note:</strong> Delivered By & Delivered To, both these fields will be enabled only when Status of DSC is updated to OUT.</li>
+                            <li><strong>Phone No:</strong> You can enter any WhatsApp number on which you want to send notifications.</li>
+                            <li>If you have tagged any person in Phonebook with the client, the WhatsApp number will be auto-fetched which can be changed as may be required at the time of updating records.</li>
+                            <li><strong>DSC History:</strong> Entire log of In/Out of DSC with the name of the person in charge for receiving or handing over the DSC is available by just clicking on the name of the person.</li>
+                        </ul>
+                        
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let stars = document.getElementsByClassName("star");
+    let output = document.getElementById("output");
+
+    // Funtion to update rating
+    function gfg(n) {
+        remove();
+        for (let i = 0; i < n; i++) {
+            let cls;
+            if (n == 1) cls = "starColor";
+            else if (n == 2) cls = "starColor";
+            else if (n == 3) cls = "starColor";
+            else if (n == 4) cls = "starColor";
+            else if (n == 5) cls = "starColor";
+            stars[i].className = "star " + cls;
+        }
+        output.innerText = "Rating is: " + n + "/5";
+        document.getElementById("rating-input").value = n;
+    }
+
+    function remove() {
+        let i = 0;
+        while (i < 5) {
+            stars[i].className = "star";
+            i++;
+        }
+    }
+</script>
+
+{% endblock container %}

@@ -1,0 +1,240 @@
+{% extends base %}
+{% block annualActive %} active {% endblock annualActive %}
+{% block title %} List of Annual Filing - FindMyDSC {% endblock title %}
+{% block container %}
+<!-- Bordered Table -->
+<div class="card">
+    <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+        <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)"><i class="bx bx-menu bx-sm"></i></a>
+    </div>
+    {% if show_archived %}
+    <h3 class="card-header">Annual Filing - Archived</h3>
+    {% else %}
+    <h3 class="card-header">Annual Filing</h3>
+    {% endif %}
+    <div class="card-body">
+        <form action="{% url 'deleteAnnual' %}" method="post">
+            {% csrf_token %}
+            <div class="d-flex align-items-center" id="navbar-collapse">
+                <!-- Search -->
+                <div class="align-items-center">
+                    <div class="input-group input-group-merge" style="width: 22rem;">
+                        <span class="input-group-text"><i class="bx bx-search"></i></span>
+                        <input type="text" class="form-control" placeholder="Search..." id="search"
+                            onkeyup="filterSearchOthers()" />
+                    </div>
+                </div>
+                <div style="margin-left: 2rem;">
+                    <span id="rowCount"></span><span
+                        style="margin-left: .5rem; font-weight:100; font-size:small;">entries
+                        found</span>
+                </div>
+                <!-- /Search -->
+                <div style="margin-left: 2rem;">
+                    <select name="financialYear" class="form-select" id="financialYear" onchange="filterSearchOthers()">
+                        <option value="" disabled selected>Financial Year</option>
+                        <option value="">All</option>
+                        <!-- Options will be added dynamically -->
+                    </select>
+                </div>
+                <div class="flex-row d-flex align-items-center ms-auto">
+                    {% if show_archived %}
+                    <a href="{% url 'listAnnual' %}" class="menu-link btn btn-outline-primary me-4">Show Active</a>
+                    {% else %}
+                    <a href="{% url 'listAnnual' %}?archived=true" class="menu-link btn btn-outline-primary me-4">Show
+                        Archived</a>
+                    {% endif %}
+                    {% if not user.isClientUser or user.isClientUser and user.canReadWrite %}
+                    <a href="{% url 'addAnnual' %}" class="menu-link btn btn-primary me-4">Add Annual Filing</a>
+                    <input type="button" class="menu-link btn btn-outline-danger" data-bs-toggle="modal"
+                        data-bs-target="#deleteAnnual" value="Delete">
+                    {% endif %}
+                </div>
+            </div>
+            <div class="table-responsive mt-3" style="max-height: calc(100vh - 199px);min-height: 5rem;">
+                <table class="table table-bordered" id="myTable">
+                    <thead class="sticky-top bg-white">
+                        <tr>
+                            <th onclick="sortTable(0)" style="width: 2rem;min-width: 2rem;">SRN</th>
+                            <th onclick="sortTable(1)" style="width: 20rem;min-width: 9rem;">Company Name</th>
+                            <th onclick="sortTable(2)" style="width: 30rem;">Group Name</th>
+                            <th onclick="sortTable(3)" style="width: 20rem;display: none;">Financial Year</th>
+                            <th onclick="sortTable(4)" style="width: 5rem;">DPT-3</th>
+                            <th onclick="sortTable(5)" style="width: 6rem;">MGT-14</th>
+                            <th onclick="sortTable(6)" style="width: 5rem;">AOC-4</th>
+                            <th onclick="sortTable(7)" style="width: 5rem;">MGT-7</th>
+                            <th onclick="sortTable(8)" style="width: 6rem;">Form 11</th>
+                            <th onclick="sortTable(9)" style="width: 6rem;">Form 8</th>
+                            {% if not user.isClientUser or user.isClientUser and user.canReadWrite %}
+                            <th style="width: 4rem;">Action</th>
+                            <th style="width: 4rem;">Select</th>
+                            {% endif %}
+                        </tr>
+                        <tr>
+                            <td><input class="form-control" placeholder="Search..." type="hidden"
+                                    onkeyup="filterSearchOthers()" data-col="0" /></td>
+                            <td><input class="form-control" placeholder="Search..." type="search"
+                                    onkeyup="filterSearchOthers()" data-col="1" /></td>
+                            <td><input class="form-control" placeholder="Search..." type="search"
+                                    onkeyup="filterSearchOthers()" data-col="2" /></td>
+                            <td style="display: none;"><input class="form-control" placeholder="Search..." type="search"
+                                    onkeyup="filterSearchOthers()" data-col="3" /></td>
+                            <td>
+                                <select class="form-control"
+                                    onchange="filterSearchOthers()" data-col="4">
+                                    <option value="">All</option>
+                                    <option value="N/A" >N/A</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Approved">Approved</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select class="form-control"
+                                    onchange="filterSearchOthers()" data-col="5">
+                                    <option value="">All</option>
+                                    <option value="N/A" >N/A</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Approved">Approved</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select class="form-control"
+                                    onchange="filterSearchOthers()" data-col="6">
+                                    <option value="">All</option>
+                                    <option value="N/A" >N/A</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Approved">Approved</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select class="form-control"
+                                    onchange="filterSearchOthers()" data-col="7">
+                                    <option value="">All</option>
+                                    <option value="N/A" >N/A</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Approved">Approved</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select class="form-control"
+                                    onchange="filterSearchOthers()" data-col="8">
+                                    <option value="">All</option>
+                                    <option value="N/A" >N/A</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Approved">Approved</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select class="form-control"
+                                    onchange="filterSearchOthers()" data-col="9">
+                                    <option value="">All</option>
+                                    <option value="N/A" >N/A</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Approved">Approved</option>
+                                </select>
+                            </td>
+                            {% if not user.isClientUser or user.isClientUser and user.canReadWrite %}
+                            <td></td>
+                            <td style="text-align: center;">
+                                <input class="form-check-input" type="checkbox" value="" id="selectAll" />
+                            </td>
+                            {% endif %}
+                        </tr>
+                    </thead>
+
+
+                    {% load static %}
+
+                    <tbody>
+                        {% for annualFiling in annualFilies %}
+                        <tr>
+                            <td>{{annualFiling.indexSRN }}</td>
+                            {% if not user.isClientUser or user.isClientUser and user.canReadWrite %}
+                            <td><a
+                                    href="{% url 'updateAnnual' annualFiling.annualFilingID %}">{{annualFiling.companyID.companyName}}</a>
+                            </td>
+                            {% else %}
+                            <td>{{ annualFiling.companyID.companyName }}</td>
+                            {% endif %}
+                            <td>{{ annualFiling.companyID.groupID.groupName }}</td>
+                            <td style="display: none;">{{ annualFiling.financialYear }}</td>
+                            <td>{{ annualFiling.statusDPT3 }}</td>
+                            <td>{{ annualFiling.statusMGT14 }}</td>
+                            <td>{{ annualFiling.statusAOC4 }}</td>
+                            <td>{{ annualFiling.statusMGT7 }}</td>
+                            <td>{{ annualFiling.statusForm11 }}</td>
+                            <td>{{ annualFiling.statusForm8 }}</td>
+                            {% if not user.isClientUser or user.isClientUser and user.canReadWrite %}
+                            <td style="text-align: center;">
+                                <a href="{% url 'updateAnnual' annualFiling.annualFilingID %}">
+                                    <img src="{% static 'assets/img/pencil.png' %}" alt="Edit" style="width: 1.7rem;">
+                                </a>
+                            </td>
+                            <td style="text-align: center;">
+                                <input class="form-check-input selectItem" type="checkbox" name="annualFilingIDs"
+                                    value="{{ annualFiling.annualFilingID }}" />
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+            </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="deleteAnnual" tabindex="-1" aria-labelledby="deleteAnnualLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteAnnualLongTitle">Confirmation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <h6 class="alert-heading fw-bold mb-1">Are you sure you want to delete
+                            Selected dsc</h6>
+                        <p class="mb-0">Once you delete your dsc, there is no going back.
+                            Please be certain.</p>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" name="deleteAnnual" />
+                        <label class="form-check-label">I confirm to delete the selected dsc</label>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="reset" data-bs-dismiss="modal" aria-label="Close"
+                            class="btn btn-outline-secondary">Close</button>
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </form>
+</div>
+<!-- / Bordered Table -->
+
+<script>
+    const currentYear = new Date().getFullYear();
+    const startYear = currentYear - 3;
+    const totalYears = 8;
+
+    const selectElement = document.getElementById('financialYear');
+
+    for (let i = 0; i < totalYears; i++) {
+        const year = startYear + i;
+        const nextYear = year + 1;
+        const optionValue = `${year}-${String(nextYear).slice(-2)}`;
+
+        const option = document.createElement('option');
+        option.value = optionValue;
+        option.textContent = optionValue;
+
+        selectElement.appendChild(option);
+    }
+</script>
+
+
+
+{% endblock %}

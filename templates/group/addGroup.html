@@ -1,0 +1,34 @@
+{% extends base %}
+{% block masterActive %} active open {% endblock masterActive %}
+{% block groupActive %} active {% endblock groupActive %}
+{% block title %} Add Group - FindMyDSC {% endblock title %}
+{% block container %}
+<!-- Bordered Table -->
+<div class="card">
+  <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+    <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+      <i class="bx bx-menu bx-sm"></i>
+    </a>
+  </div>
+  <h3 class="card-header">Add Group</h3>
+  <div class="card-body">
+    <form action="{% url 'addGroup' %}" method="POST">
+      {% csrf_token %}
+      <div class="row">
+        <div class="mb-3 col-md-6">
+          <label class="form-label">Group Name</label>
+          <input class="form-control" type="text" id="groupName" name="groupName" placeholder="GROUP1" required autofocus/>
+          <span id="responseMessage"></span>
+        </div>
+        <div class="mt-2">
+          <button type="submit" class="btn btn-primary me-2" id="submitBtn">Save</button>
+          <button type="reset" class="btn btn-outline-secondary">Reset</button>
+        </div>
+    </form>
+  </div>
+</div>
+
+<!--/ Bordered Table -->
+
+
+{% endblock container %}

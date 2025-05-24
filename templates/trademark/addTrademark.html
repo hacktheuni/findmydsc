@@ -1,0 +1,277 @@
+{% extends base %}
+{% block trademarkActive %} active {% endblock trademarkActive %}
+{% block title %} Add Trademark - FindMyDSC {% endblock title %}
+{% block container %}
+<!-- Bordered Table -->
+
+<style>
+  .dropdown-container {
+    position: relative;
+    display: inline-block;
+  }
+
+  .dropdown-values {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    height: auto;
+    max-height: 25rem;
+    overflow-y: auto;
+  }
+
+  .dropdown-values div {
+    color: black;
+    padding: .2rem .5rem;
+    text-decoration: none;
+    display: block;
+    cursor: pointer;
+  }
+
+  .dropdown-values div:hover {
+    background-color: #f1f1f1;
+  }
+
+  .dropdown-values div.highlight {
+    background-color: #dcdcdc;
+  }
+</style>
+<div class="card">
+  <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+    <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+      <i class="bx bx-menu bx-sm"></i>
+    </a>
+  </div>
+  <h3 class="card-header">Add Trademark</h3>
+  <div class="card-body">
+    <form action="{% url 'addTrademark' %}" method="POST">
+      {% csrf_token %}
+      <div class="row">
+        <div class="mb-3 col-md-6">
+          <label class="form-label">Name of Trademark</label>
+          <input class="form-control" type="text" name="nameOfTrademark" value="{{form_data.nameOfTrademark|default:''}}" required />
+        </div>
+        <div class="mb-3 col-md-3">
+          <label class="form-label">application No.</label>
+          <input class="form-control" type="text" name="applicationNo" value="{{form_data.applicationNo|default:''}}" />
+        </div>
+        <div class="mb-3 col-md-3">
+          <label class="form-label">Class</label>
+          <input class="form-control" type="text" name="classNo" value="{{form_data.classNo|default:''}}" required/>
+        </div>
+        <div class="mb-3 col-md-6">
+          <label class="form-label">Name of Applicant</label>
+          <input class="form-control" type="text" name="nameOfApplicant" value="{{form_data.nameOfApplicant|default:''}}" required />
+        </div>
+        <div class="mb-3 col-md-3">
+          <label class="form-label">Date of Application</label>
+          <input class="form-control" type="date" name="dateOfApp" value="{{form_data.dateOfApp|date:'Y-m-d'|default:''}}" required/>
+        </div>
+        <div class="mb-3 col-md-3">
+          <label class="form-label">Current Status 1</label>
+          <select name="status1" class="form-select" id="status" required>
+            <option value="" disabled>Select Status</option>
+            <option value="Application to be filed" {% if form_data.status1 == 'Application to be filed' %}selected{% endif %}>Application to be filed</option>
+            <option value="Formalities Chk Pass" {% if form_data.status1 == 'Formalities Chk Pass' %}selected{% endif %}>Formalities Chk Pass</option>
+            <option value="Marked for Exam" {% if form_data.status1 == 'Marked for Exam' %}selected{% endif %}>Marked for Exam</option>
+            <option value="Accepted & Advertised" {% if form_data.status1 == 'Accepted & Advertised' %}selected{% endif %}>Accepted & Advertised</option>
+            <option value="Objected " {% if form_data.status1 == 'Objected' %}selected{% endif %}>Objected</option>
+            <option value="Opposed" {% if form_data.status1 == 'Opposed' %}selected{% endif %}>Opposed</option>
+            <option value="Ready for show cause hearing" {% if form_data.status1 == 'Ready for show cause hearing' %}selected{% endif %}>Ready for show cause hearing</option>
+            <option value="Rectification filed" {% if form_data.status1 == 'Rectification filed' %}selected{% endif %}>Rectification filed</option>
+            <option value="Send To Vienna Condification" {% if form_data.status1 == 'Send To Vienna Condification' %}selected{% endif %}>Send To Vienna Condification</option>
+            <option value="Registered" {% if form_data.status1 == 'Registered' %}selected{% endif %}>Registered</option>
+            <option value="Abandoned" {% if form_data.status1 == 'Abandoned' %}selected{% endif %}>Abandoned</option>
+          </select>
+        </div>
+        <div class="mb-3 col-md-3">
+          <label class="form-label">Current Status 2</label>
+          <select name="status2" class="form-select" id="status">
+            <option value="" disabled>Select Status</option>
+            <option value="Reply Submitted" {% if form_data.status2 == 'Reply Submitted' %}selected{% endif %}>Reply Submitted</option>
+            <option value="Hearing notice (Adjourned)" {% if form_data.status2 == 'Hearing notice (Adjourned)' %}selected{% endif %}>Hearing notice (Adjourned)</option>
+            <option value="Ready for Show cause Hearing" {% if form_data.status2 == 'Ready for Show cause Hearing' %}selected{% endif %}>Ready for Show cause Hearing</option>
+            <option value="Awaiting Reply to Examination Report" {% if form_data.status2 == 'Awaiting Reply to Examination Report' %}selected{% endif %}>Awaiting Reply to Examination Report</option>
+            <option value="Rule 45 Received / Sent " {% if form_data.status2 == 'Rule 45 Received / Sent' %}selected{% endif %}>Rule 45 Received / Sent</option>
+            <option value="Rule 47 Received / Sent" {% if form_data.status2 == 'Rule 47 Received / Sent' %}selected{% endif %}>Rule 47 Received / Sent</option>
+            <option value="Counter Statement Received / Filed" {% if form_data.status2 == 'Counter Statement Received / Filed' %}selected{% endif %}>Counter Statement Received / Filed</option>
+          </select>
+        </div>
+        <div class="mb-3 col-md-3">
+          <label class="form-label">Hearing Date</label>
+          <input class="form-control" type="date" name="hearingDate" value="{{form_data.hearingDate|date:'Y-m-d'|default:''}}"/>
+        </div>
+        <div class="mb-3 col-md-3">
+          <label class="form-label">Remark</label>
+          <input class="form-control" type="text" name="remark" value="{{form_data.remark|default:''}}" />
+        </div>
+        <div class="mb-3 col-md-3">
+          <label class="form-label">Reference</label>
+          <input type="text" class="groupName form-control" placeholder="Group1" name="groupName" value="{{form_data.groupName|default:''}}"
+            onfocus="showDropdown()" id="groupName" oninput="filterFunction()" onclick="showDropdown()"
+            autocomplete="off" required >
+          <div class="dropdown-arrow" onclick="toggleDropdown()"></div>
+          <div class="dropdown-values" id="dropdown-values">
+            {% for group in groups %}
+            <div onclick="selectValue('{{group.groupName}}')">{{group.groupName}}</div>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="mb-3 col-md-3">
+          <label class="form-label">Opposition Notice Received Date</label>
+          <input class="form-control" type="date" name="oppDate" value="{{form_data.oppDate|date:'Y-m-d'|default:''}}"/>
+        </div>
+        <div class="mb-3 col-md-3">
+          <label class="form-label">Last Date</label>
+          <input class="form-control" type="date" name="lastDate" value="{{form_data.lastDate|date:'Y-m-d'|default:''}}"/>
+        </div>
+        <div class="mb-3 col-md-3">
+          <label class="form-label">Fees</label>
+          <input class="form-control" type="text" name="fees" value="{{form_data.fees|default:''}}" />
+        </div>
+        <div class="mb-3 col-md-3">
+          <label class="form-label">Expiry Date</label>
+          <input class="form-control" type="date" name="expiryDate" value="{{form_data.expiryDate|date:'Y-m-d'|default:''}}"/>
+        </div>
+        <div class="mb-3 col-md-1">
+          <label class="form-label">Archive</label>
+          <input class="form-check-input form-control" name="isArchived" type="checkbox" id="archive" value="True" />  
+        </div>
+        <div class="mt-2">
+          <button type="submit" class="btn btn-primary me-2">Save</button>
+          <button type="reset" class="btn btn-outline-secondary">Reset</button>
+        </div>
+    </form>
+  </div>
+</div>
+
+
+<script>
+  let autoCompleted = false;
+  let currentFocus = -1;
+  let preventAutoComplete = false;
+
+  function toggleDropdown() {
+    const dropdown = document.getElementsByClassName('drop-values');
+    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+  }
+
+  function showDropdown() {
+    const dropdown = document.getElementById('dropdown-values');
+    dropdown.style.display = 'block';
+  }
+
+  function selectValue(value) {
+    const input = document.getElementById('groupName');
+    input.value = value;
+    closeDropdown(); // Update dropdown values to show only the selected value
+    preventAutoComplete = true;
+  }
+
+  function filterFunction() {
+    const input = document.getElementById('groupName');
+    const filter = input.value.toLowerCase();
+    const dropdown = document.getElementById('dropdown-values');
+    const values = dropdown.getElementsByTagName('div');
+
+    let visibleCount = 0;
+    let lastVisibleValue = '';
+
+    for (let i = 0; i < values.length; i++) {
+      const txtValue = values[i].textContent || values[i].innerText;
+      if (txtValue.toLowerCase().indexOf(filter) > -1) {
+        values[i].style.display = "";
+        visibleCount++;
+        lastVisibleValue = txtValue;
+      } else {
+        values[i].style.display = "none";
+      }
+    }
+
+    if (visibleCount === 1 && filter !== '' && !preventAutoComplete) {
+      autoCompleted = true;
+      input.value = lastVisibleValue;
+    } else {
+      autoCompleted = false;
+    }
+
+    preventAutoComplete = false;
+
+    // Show all dropdown values if the input is empty
+    if (filter === '') {
+      for (let i = 0; i < values.length; i++) {
+        values[i].style.display = "";
+      }
+      dropdown.style.display = 'block';
+    } else {
+      // Hide the dropdown if no values are visible
+      dropdown.style.display = visibleCount > 0 ? 'block' : 'none';
+    }
+  }
+
+
+  function closeDropdown() {
+    const dropdown = document.getElementById('dropdown-values');
+    dropdown.style.display = 'none';
+  }
+
+  document.getElementById('groupName').addEventListener('keydown', function (event) {
+    const dropdown = document.getElementById('dropdown-values');
+    const values = dropdown.getElementsByTagName('div');
+
+    if (autoCompleted && event.key !== "Tab" && event.key !== "Shift" && event.key !== "Control" && event.key !== "Backspace") {
+      autoCompleted = false;
+    }
+
+    // Check if input is cleared and show all dropdown values
+    setTimeout(function () {
+      if (event.target.value === '') {
+        for (let i = 0; i < values.length; i++) {
+          values[i].style.display = "";
+        }
+      }
+    }, 0);
+
+    // Keyboard navigation
+    if (event.key === "ArrowDown") {
+      currentFocus++;
+      addActive(values);
+    } else if (event.key === "ArrowUp") {
+      currentFocus--;
+      addActive(values);
+    } else if (event.key === "Enter") {
+      event.preventDefault();
+      if (currentFocus > -1) {
+        if (values[currentFocus]) values[currentFocus].click();
+      }
+    } else if (event.key === "Backspace") {
+      preventAutoComplete = true;
+    }
+  });
+
+  function addActive(values) {
+    if (!values) return false;
+    removeActive(values);
+    if (currentFocus >= values.length) currentFocus = 0;
+    if (currentFocus < 0) currentFocus = values.length - 1;
+    values[currentFocus].classList.add("highlight");
+  }
+
+  function removeActive(values) {
+    for (let i = 0; i < values.length; i++) {
+      values[i].classList.remove("highlight");
+    }
+  }
+
+  // Close the dropdown if the user clicks outside of it
+  document.addEventListener('click', function (event) {
+    const dropdown = document.getElementById('dropdown-values');
+    const input = document.getElementById('groupName');
+    const arrow = document.querySelector('.dropdown-arrow');
+    if (!input.contains(event.target) && !arrow.contains(event.target)) {
+      dropdown.style.display = 'none';
+    }
+  });
+</script>
+{% endblock container %}

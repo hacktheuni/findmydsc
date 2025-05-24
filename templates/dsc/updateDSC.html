@@ -1,0 +1,484 @@
+{% extends base %}
+{% block dscActive %} active {% endblock dscActive %}
+{% block title %} Update DSC - FindMyDSC {% endblock title %}
+{% block container %}
+<!-- Bordered Table -->
+<style>
+    .dropdown-container {
+        position: relative;
+        display: inline-block;
+    }
+
+    .dropdown-values {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        width: 45%;
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+        z-index: 1;
+        height: auto;
+        max-height: 25rem;
+        overflow-y: auto;
+    }
+
+    .dropdown-values div {
+        color: black;
+        padding: .2rem .5rem;
+        text-decoration: none;
+        display: block;
+        cursor: pointer;
+    }
+
+    .dropdown-values div:hover {
+        background-color: #f1f1f1;
+    }
+
+    .dropdown-values div.highlight {
+        background-color: #dcdcdc;
+    }
+</style>
+<div class="card">
+    <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+        <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+            <i class="bx bx-menu bx-sm"></i>
+        </a>
+    </div>
+    <h3 class="card-header">Update DSC</h3>
+    <div class="card-body">
+        <form action="{% url 'updateDSC' dsc.dscID %}" method="POST">
+            {% csrf_token %}
+            <div class="row">
+                <div class="mb-3 col-md-6">
+                    <label class="form-label">Client Name</label>
+                    <input class="form-control" type="text" name="clientName" value="{{dsc.clientName}}" autofocus
+                        required />
+                </div>
+                <div class="mb-3 col-md-6">
+                    <label class="form-label">Company Name</label>
+                    <input type="text" class="companyName form-control" name="companyName"
+                        value="{{dsc.companyID.companyName}}" id="companyName" onfocus="showDropdown()"
+                        onkeyup="fetchAndCheckCompanyName()" onchange="updateRequiredFields()"
+                        oninput="filterFunction()" onclick="showDropdown()" autocomplete="off" required>
+                    <div class="dropdown-arrow" onclick="toggleDropdown()"></div>
+                    <div class="dropdown-values" id="dropdown-values" style="display: none;">
+                        {% for company in companies %}
+                        <div onclick="selectValue('{{company.companyName}}')">{{company.companyName}}</div>
+                        {% endfor %}
+                    </div>
+                    <div id="messageBox"></div>
+                </div>
+                <div class="mb-3 col-md-6">
+                    <label class="form-label">Group Name</label>
+                    <input class="form-control" type="text" name="groupName" value="{{dsc.companyID.groupID.groupName}}"
+                        id="groupName" disabled required />
+                </div>
+                <div class="mb-3 col-md-3">
+                    <label class="form-label">Location</label>
+                    <input class="form-control" type="text" name="location" value="{{dsc.location}}" required />
+                </div>
+                <div class="mb-3 col-md-3">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="select2 form-select" id="status" required>
+                        <option value="">Select Status</option>
+                        {% for option in options %}
+                        <option value="{{option}}" {% if dsc.status == option %} selected {% endif %}>
+                            {{ option }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3 col-md-6">
+                    <label class="col-md-2 form-label">Renewal Date</label>
+                    <input class="form-control" type="date" name="renewalDate"
+                        value="{{ dsc.renewalDate|date:'Y-m-d'|default:'' }}" />
+                </div>
+                <div class="mb-3 col-md-3">
+                    <label class="form-label">Received By</label>
+                    <input class="form-control" type="text" name="receivedBy" value="{{dsc.receivedBy}}"
+                        id="receivedBy" />
+                </div>
+                <div class="mb-3 col-md-3">
+                    <label class="form-label">Delivered By</label>
+                    <input class="form-control" type="text" name="deliveredBy" value="{{dsc.deliveredBy}}"
+                        id="deliveredBy" />
+                </div>
+                <div class="mb-3 col-md-3">
+                    <label class="form-label">Received From</label>
+                    <input class="form-control" type="text" name="receivedFrom" value="{{receivedFrom}}"
+                        id="receivedFrom" />
+                </div>
+                <div class="mb-3 col-md-3">
+                    <label class="form-label">Delivered To</label>
+                    <input class="form-control" type="text" name="deliveredTo" value="{{deliveredTo}}"
+                        id="deliveredTo" />
+                </div>
+                <div class="mb-3 col-md-6">
+                    <label class="form-label">Phone Number</label>
+                    <div class="input-group input-group-merge">
+                        <span class="input-group-text">IN (+91)</span>
+                        <input type="text" name="clientPhone" class="form-control" oninput="validateField(this)" value="{{clientPhone}}"
+                            id="clientPhone" required />
+                    </div>
+                    <span id="clientPhoneError" class="error-message"></span>
+                </div>
+                <div class="mt-2">
+                    <button type="submit" class="btn btn-primary me-2">Save changes</button>
+                    <button type="reset" class="btn btn-outline-secondary">Reset</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="card">
+    <h4 class="card-header">DSC History</h4>
+    <div class="card-body">
+        <div class="table-responsive mt-3" style="max-height: calc(100vh - 199px);min-height: 5rem;">
+            <table class="table table-bordered" id="myTable">
+                <thead class="sticky-top bg-white">
+                    <tr>
+                        <th style="width: 20rem;min-width: 9rem;">Client Name</th>
+                        <th style="width: 4rem;">Status</th>
+                        <th style="width: 6rem;min-width: 10rem;">Received By</th>
+                        <th style="width: 6rem;min-width: 10rem;">Delivered To</th>
+                        <th style="width: 11rem;min-width: 10rem;">Modified Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for dsc in dscHistory %}
+                    <tr>
+                        <td>{{ dsc.clientName }}</td>
+                        <td>{{ dsc.status }}</td>
+                        <td>{{ dsc.receivedBy }}</td>
+                        <td>{{ dsc.deliveredTo }}</td>
+                        <!-- The modal trigger with all necessary data attributes -->
+                        <td style="color: blue;cursor: pointer;" data-bs-toggle="modal" data-bs-target="#exampleModal" data-location="{{ dsc.location }}"
+                            data-renewal-date="{{ dsc.renewalDate|date:'d-m-Y' }}" data-delivered-by="{{ dsc.deliveredBy }}"
+                            data-received-by="{{ dsc.receivedBy }}" data-received-from="{{ dsc.receivedFrom }}"
+                            data-delivered-to="{{ dsc.deliveredTo }}" data-client-number="{{ dsc.clientPhone }}"
+                            data-modified-by="{{ dsc.userID.userName }}" onclick="openModal(this)">
+                            {{ dsc.modifiedDate|date:"d-m-Y H:i:s" }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">DSC Details</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container mb-3">
+                    <div class="row">
+                        <div class="col px-1 form-label">Location</div>
+                        <div class="col px-1 form-label">Renewal Date</div>
+                        <div class="col px-1 form-label">Delivered By</div>
+                        <div class="col px-1 form-label">Received By</div>
+                    </div>
+                    <div class="row">
+                        <div id="modal-location" class="col border me-2 px-1 form-control">N/A</div>
+                        <div id="modal-renewal-date" class="col border me-2 px-1 form-control">N/A</div>
+                        <div id="modal-delivered-by" class="col border me-2 px-1 form-control">N/A</div>
+                        <div id="modal-received-by" class="col border me-2 px-1 form-control">N/A</div>
+                    </div>
+                </div>
+                <div class="container">
+                    <div class="row">
+                        <div class="col px-1 form-label">Received From</div>
+                        <div class="col px-1 form-label">Delivered To</div>
+                        <div class="col px-1 form-label">Client Number</div>
+                        <div class="col px-1 form-label">Modified By</div>
+                    </div>
+                    <div class="row">
+                        <div id="modal-received-from" class="col border me-2 px-1 form-control">N/A</div>
+                        <div id="modal-delivered-to" class="col border me-2 px-1 form-control">N/A</div>
+                        <div id="modal-client-number" class="col border me-2 px-1 form-control">N/A</div>
+                        <div id="modal-modified-by" class="col border me-2 px-1 form-control">N/A</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% if whatsurl %}
+<button id="openWhatsAppBtn" style="display: none;">Open WhatsApp</button>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var whatsappUrl = "{{ whatsurl }}";
+
+        if (whatsappUrl) {
+            var whatsappBtn = document.getElementById('openWhatsAppBtn');
+            whatsappBtn.style.display = 'block';
+
+            whatsappBtn.addEventListener('click', function () {
+                window.open(whatsappUrl, '_blank');
+                whatsappBtn.style.display = 'none';
+            });
+
+            // Automatically click after form submission
+            whatsappBtn.click();
+        }
+    });
+</script>
+{% endif %}
+
+<script>
+    function openModal(element) {
+        // Get data from the clicked table row (element)
+        const location = element.getAttribute('data-location');
+        const renewalDate = element.getAttribute('data-renewal-date');
+        const receivedBy = element.getAttribute('data-received-by');
+        const receivedFrom = element.getAttribute('data-received-from');
+        const deliveredTo = element.getAttribute('data-delivered-to');
+        const deliveredBy = element.getAttribute('data-delivered-by');
+        const clientNumber = element.getAttribute('data-client-number');
+        const modifiedBy = element.getAttribute('data-modified-by');
+
+        // Populate the modal with the extracted data
+        document.getElementById('modal-location').textContent = location;
+        document.getElementById('modal-renewal-date').textContent = renewalDate;
+        document.getElementById('modal-received-by').textContent = receivedBy;
+        document.getElementById('modal-received-from').textContent = receivedFrom;
+        document.getElementById('modal-delivered-to').textContent = deliveredTo;
+        document.getElementById('modal-delivered-by').textContent = deliveredBy;
+        document.getElementById('modal-client-number').textContent = clientNumber;
+        document.getElementById('modal-modified-by').textContent = modifiedBy;
+    }
+
+    function fetchAndCheckCompanyName() {
+        let companyName = $('#companyName').val(); // Get the company name input value
+        let csrfToken = $('[name=csrfmiddlewaretoken]').val(); // Get the CSRF token
+
+        $.ajax({
+            url: "{% url 'fetchGroupName' %}",
+            type: "POST",
+            data: {
+                'companyName': companyName,
+                'csrfmiddlewaretoken': csrfToken
+            },
+            success: function (response) {
+                if (response.status === 'success') {
+                    // Update group name
+                    $('#groupName').val(response.group_name);
+                    $('#receivedFrom').val(response.client_name);
+                    $('#deliveredTo').val(response.client_name);
+                    $('#clientPhone').val(response.client_phone);
+                    console.log($('#receivedFrom').val())
+                    // Clear message box
+                    $('#messageBox').text('');
+                } else {
+                    // Display error message
+                    $('#groupName').val('');
+                    $('#messageBox').text('Company name does not exist in the database!');
+                    $('#messageBox').css('color', 'red');
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("Failed to fetch data: " + xhr.statusText);
+            }
+        });
+    }
+
+
+    function updateRequiredFields() {
+        let status = $('#status').val();
+        let receivedBy = $('#receivedBy');
+        let receivedFrom = $('#receivedFrom');
+        let deliveredTo = $('#deliveredTo');
+        let deliveredBy = $('#deliveredBy');
+
+        // Clear previous required attributes
+        receivedBy.removeAttr('required');
+        receivedFrom.removeAttr('required');
+        deliveredTo.removeAttr('required');
+        deliveredBy.removeAttr('required');
+
+        receivedBy.removeAttr('disabled');
+        receivedFrom.removeAttr('disabled');
+        deliveredTo.removeAttr('disabled');
+        deliveredBy.removeAttr('disabled');
+
+        // Set required attribute based on status
+        if (status === 'IN') {
+            receivedBy.attr('required', 'required');
+            receivedFrom.attr('required', 'required');
+            deliveredTo.attr('disabled', 'disabled');
+            deliveredBy.attr('disabled', 'disabled');
+            deliveredTo.val(""); // Clear the value
+            deliveredBy.val(""); // Clear the value
+            dscDeli = '{{deliveredTo}}'
+            if (dscDeli) {
+                receivedFrom.val('{{receivedFrom}}');
+            }
+            else {
+                receivedFrom.val('{{receivedFrom}}');
+            }
+
+        } else if (status === 'OUT') {
+            deliveredTo.attr('required', 'required');
+            deliveredBy.attr('required', 'required');
+            receivedBy.attr('disabled', 'disabled');
+            receivedFrom.attr('disabled', 'disabled');
+            receivedBy.val(""); // Clear the value
+            receivedFrom.val(""); // Clear the value
+            dscRecei = '{{receivedFrom}}'
+            if (dscRecei) {
+                deliveredTo.val('{{deliveredTo}}');
+            }
+            else {
+                deliveredTo.val('{{deliveredTo}}');
+            }
+        }
+    }
+
+    $(document).ready(function () {
+        updateRequiredFields();
+        // Set up the event listener for the status dropdown
+        $('#status').change(updateRequiredFields);
+    });
+
+</script>
+<!--/ Bordered Table -->
+
+
+
+<script>
+    let autoCompleted = false;
+    let currentFocus = -1;
+    let preventAutoComplete = false;
+
+    function toggleDropdown() {
+        const dropdown = document.getElementsByClassName('drop-values');
+        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function showDropdown() {
+        const dropdown = document.getElementById('dropdown-values');
+        dropdown.style.display = 'block';
+    }
+
+    function selectValue(value) {
+        const input = document.getElementById('companyName');
+        input.value = value;
+        fetchAndCheckCompanyName()
+        closeDropdown();
+        filterFunction(); // Update dropdown values to show only the selected value
+        preventAutoComplete = true;
+    }
+
+    function filterFunction() {
+        const input = document.getElementById('companyName');
+        const filter = input.value.toLowerCase();
+        const dropdown = document.getElementById('dropdown-values');
+        const values = dropdown.getElementsByTagName('div');
+
+        let visibleCount = 0;
+        let lastVisibleValue = '';
+
+        for (let i = 0; i < values.length; i++) {
+            const txtValue = values[i].textContent || values[i].innerText;
+            if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                values[i].style.display = "";
+                visibleCount++;
+                lastVisibleValue = txtValue;
+            } else {
+                values[i].style.display = "none";
+            }
+        }
+
+        if (visibleCount === 1 && filter !== '' && !preventAutoComplete) {
+            autoCompleted = true;
+            input.value = lastVisibleValue;
+        } else {
+            autoCompleted = false;
+        }
+
+        preventAutoComplete = false;
+
+        // Show all dropdown values if the input is empty
+        if (filter === '') {
+            for (let i = 0; i < values.length; i++) {
+                values[i].style.display = "";
+            }
+            dropdown.style.display = 'block';
+        } else {
+            // Hide the dropdown if no values are visible
+            dropdown.style.display = visibleCount > 0 ? 'block' : 'none';
+        }
+    }
+
+    function closeDropdown() {
+        const dropdown = document.getElementById('dropdown-values');
+        dropdown.style.display = 'none';
+    }
+
+    document.getElementById('companyName').addEventListener('keydown', function (event) {
+        const dropdown = document.getElementById('dropdown-values');
+        const values = dropdown.getElementsByTagName('div');
+
+        if (autoCompleted && event.key !== "Tab" && event.key !== "Shift" && event.key !== "Control" && event.key !== "Backspace") {
+            autoCompleted = false;
+        }
+
+        // Check if input is cleared and show all dropdown values
+        setTimeout(function () {
+            if (event.target.value === '') {
+                for (let i = 0; i < values.length; i++) {
+                    values[i].style.display = "";
+                }
+            }
+        }, 0);
+
+        // Keyboard navigation
+        if (event.key === "ArrowDown") {
+            currentFocus++;
+            addActive(values);
+        } else if (event.key === "ArrowUp") {
+            currentFocus--;
+            addActive(values);
+        } else if (event.key === "Enter") {
+            event.preventDefault();
+            if (currentFocus > -1) {
+                if (values[currentFocus]) values[currentFocus].click();
+            }
+        } else if (event.key === "Backspace") {
+            preventAutoComplete = true;
+        }
+    });
+
+    function addActive(values) {
+        if (!values) return false;
+        removeActive(values);
+        if (currentFocus >= values.length) currentFocus = 0;
+        if (currentFocus < 0) currentFocus = values.length - 1;
+        values[currentFocus].classList.add("highlight");
+    }
+
+    function removeActive(values) {
+        for (let i = 0; i < values.length; i++) {
+            values[i].classList.remove("highlight");
+        }
+    }
+
+    // Close the dropdown if the user clicks outside of it
+    document.addEventListener('click', function (event) {
+        const dropdown = document.getElementById('dropdown-values');
+        const input = document.getElementById('companyName');
+        const arrow = document.querySelector('.dropdown-arrow');
+        if (!input.contains(event.target) && !arrow.contains(event.target)) {
+            dropdown.style.display = 'none';
+        }
+    });
+</script>
+{% endblock container %}

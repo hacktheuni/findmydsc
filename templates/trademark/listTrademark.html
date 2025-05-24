@@ -1,0 +1,199 @@
+{% extends base %}
+{% block trademarkActive %} active {% endblock trademarkActive %}
+{% block title %} List of Trademark - FindMyDSC {% endblock title %}
+{% block container %}
+<!-- Bordered Table -->
+
+<div class="card">
+    <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+        <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)"><i class="bx bx-menu bx-sm"></i></a>
+    </div>
+    {% if show_archived %}
+    <h3 class="card-header">Trademark - Archived</h3>
+    {% else %}
+    <h3 class="card-header">Trademark</h3>
+    {% endif %}
+    <div class="card-body">
+        <form action="{% url 'deleteTrademark' %}" method="post">
+            {% csrf_token %}
+            <div class="d-flex align-items-center" id="navbar-collapse">
+                <!-- Search -->
+                <div class="align-items-center">
+                    <div class="input-group input-group-merge" style="width: 22rem;">
+                        <span class="input-group-text"><i class="bx bx-search"></i></span>
+                        <input type="text" class="form-control" placeholder="Search..." id="search"
+                            onkeyup="filterSearchOthers()" />
+                    </div>
+                </div>
+                <div style="margin-left: 2rem;">
+                    <span id="rowCount"></span><span
+                        style="margin-left: .5rem; font-weight:100; font-size:small;">entries
+                        found</span>
+                </div>
+                <!-- /Search -->
+
+                <div class="flex-row d-flex align-items-center ms-auto">
+                    {% if show_archived %}
+                    <a href="{% url 'listTrademark' %}" class="menu-link btn btn-outline-primary me-4">Show Active</a>
+                    {% else %}
+                    <a href="{% url 'listTrademark' %}?archived=true" class="menu-link btn btn-outline-primary me-4">Show
+                        Archived</a>
+                    {% endif %}
+                    {% if not user.isClientUser or user.isClientUser and user.canReadWrite %}
+                    <a href="{% url 'addTrademark' %}" class="menu-link btn btn-primary me-4">Add Trademark</a>
+
+                    <input type="button" class="menu-link btn btn-outline-danger" data-bs-toggle="modal"
+                        data-bs-target="#deleteTrademark" value="Delete">
+                    {% endif %}
+                </div>
+            </div>
+            <div class="table-responsive mt-3" style="max-height: calc(100vh - 199px);min-height: 5rem;">
+                <table class="table table-bordered" id="myTable">
+                    <thead class="sticky-top bg-white">
+                        <tr>
+                            <th onclick="sortTable(0)" style="width: 2rem;min-width: 2rem;">SRN</th>
+                            <th onclick="sortTable(1)" style="width: 20rem;min-width: 9rem;">Name of Trademark</th>
+                            <th onclick="sortTable(2)" style="width: 30rem;">application No.</th>
+                            <th onclick="sortTable(3)" style="width: 6rem;min-width: 6rem;">Status 1</th>
+                            <th onclick="sortTable(4)" style="min-width: 8rem;width: 8rem;">Status 2</th>
+                            <th onclick="sortTable(5)" style="min-width: 10rem;width: 10rem;">Hearing Date</th>
+                            <th onclick="sortTable(6)" style="width: 7rem;min-width: 7rem;">Reference</th>
+                            <th onclick="sortTable(7)" style="width: 7rem;min-width: 7rem;">Last Date</th>
+                            <th onclick="sortTable(8)" style="width: 7rem;min-width: 7rem;">Expiry Date</th>
+                            {% if not user.isClientUser or user.isClientUser and user.canReadWrite %}
+                            <th style="width: 4rem;">Action</th>
+                            <th style="width: 4rem;">Select</th>
+                            {% endif %}
+                        </tr>
+                        <tr>
+                            <td><input class="form-control" placeholder="Search..." type="hidden"
+                                    onkeyup="filterSearchOthers()" data-col="0" /></td>
+                            <td><input class="form-control" placeholder="Search..." type="search"
+                                    onkeyup="filterSearchOthers()" data-col="1" /></td>
+                            <td><input class="form-control" placeholder="Search..." type="search"
+                                    onkeyup="filterSearchOthers()" data-col="2" /></td>
+                            <td>
+                                <select class="form-control" style="padding: .4rem 1rem;"
+                                    onchange="filterSearchOthers()" data-col="3">
+                                    <option value="">All</option>
+                                    <option value="" disabled>Select Status</option>
+                                    <option value="Application to be filed">Application to be filed</option>
+                                    <option value="Formalities Chk Pass">Formalities Chk Pass</option>
+                                    <option value="Marked for Exam">Marked for Exam</option>
+                                    <option value="Accepted & Advertised">Accepted & Advertised</option>
+                                    <option value="Objected ">Objected</option>
+                                    <option value="Opposed">Opposed</option>
+                                    <option value="Ready for show cause hearing">Ready for show cause hearing</option>
+                                    <option value="Rectification filed">Rectification filed</option>
+                                    <option value="Send To Vienna Condification">Send To Vienna Condification</option>
+                                    <option value="Registered">Registered</option>
+                                    <option value="Abandoned">Abandoned</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select class="form-control" style="padding: .4rem 1rem;"
+                                    onchange="filterSearchOthers()" data-col="4">
+                                    <option value="" disabled>Select Status</option>
+                                    <option value="Reply Submitted">Reply Submitted</option>
+                                    <option value="Hearing notice (Adjourned)">Hearing notice (Adjourned)</option>
+                                    <option value="Ready for Show cause Hearing">Ready for Show cause Hearing</option>
+                                    <option value="Awaiting Reply to Examination Report">Awaiting Reply to Examination
+                                        Report</option>
+                                    <option value="Rule 45 Received / Sent ">Rule 45 Received / Sent</option>
+                                    <option value="Rule 47 Received / Sent">Rule 47 Received / Sent</option>
+                                    <option value="Counter Statement Received / Filed">Counter Statement Received /
+                                        Filed</option>
+                                </select>
+                            </td>
+                            <td><input class="form-control" placeholder="Search..." type="search"
+                                    onkeyup="filterSearchOthers()" data-col="5" /></td>
+
+                            <td><input class="form-control" placeholder="Search..." type="search"
+                                    onkeyup="filterSearchOthers()" data-col="6" /></td>
+                            <td><input class="form-control" placeholder="Search..." type="search"
+                                    onkeyup="filterSearchOthers()" data-col="7" /></td>
+                            <td><input class="form-control" placeholder="Search..." type="search"
+                                    onkeyup="filterSearchOthers()" data-col="8" /></td>
+                            {% if not user.isClientUser or user.isClientUser and user.canReadWrite %}
+                            <td></td>
+                            <td style="text-align: center;">
+                                <input class="form-check-input" type="checkbox" value="" id="selectAll" />
+                            </td>
+                            {% endif %}
+                        </tr>
+                    </thead>
+
+
+                    {% load static %}
+
+                    <tbody>
+                        {% for tm in trademark %}
+                        <tr>
+                            <td>{{ tm.indexSRN }}</td>
+                            {% if not user.isClientUser or user.isClientUser and user.canReadWrite %}
+                            <td><a href="{% url 'updateTrademark' tm.trademarkID %}">{{ tm.nameOfTrademark }}</a></td>
+                            {% else %}
+                            <td>{{ tm.nameOfTrademark }}</td>
+                            {% endif %}
+                            <td>{{ tm.applicationNo }}</td>
+                            <td>{{ tm.status1 }}</td>
+                            <td>{{ tm.status2 }}</td>
+                            <td>{{ tm.hearingDate|date:"d-m-Y" }}</td>
+                            <td>{{ tm.groupID.groupName }}</td>
+                            <td>{{ tm.lastDate|date:"d-m-Y" }}</td>
+                            <td>{{ tm.expiryDate|date:"d-m-Y" }}</td>
+                            {% if not user.isClientUser or user.isClientUser and user.canReadWrite %}
+                            <td style="text-align: center;">
+                                <a href="{% url 'updateTrademark' tm.trademarkID %}">
+                                    <img src="{% static 'assets/img/pencil.png' %}" alt="Edit" style="width: 1.7rem;">
+                                </a>
+                            </td>
+                            <td style="text-align: center;">
+                                <input class="form-check-input selectItem" type="checkbox" name="trademarkIDs"
+                                    value="{{ tm.trademarkID }}" />
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+            </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="deleteTrademark" tabindex="-1" aria-labelledby="deleteTrademarkLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteTrademarkLongTitle">Confirmation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <h6 class="alert-heading fw-bold mb-1">Are you sure you want to delete
+                            Selected Trademark Records</h6>
+                        <p class="mb-0">Once you delete your dsc, there is no going back.
+                            Please be certain.</p>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" name="deleteTrademark" />
+                        <label class="form-check-label">I confirm to delete the selected Trademark Records</label>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="reset" data-bs-dismiss="modal" aria-label="Close"
+                            class="btn btn-outline-secondary">Close</button>
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </form>
+</div>
+</div>
+
+<!-- / Bordered Table -->
+
+{% endblock %}

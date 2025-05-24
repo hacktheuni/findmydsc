@@ -1,0 +1,192 @@
+{% extends base %}
+{% block myProfileActive %} active open{% endblock myProfileActive %}
+{% block adminActive %} active {% endblock adminActive %}
+{% block title %} Update Profile - FindMyDSC {% endblock title %}
+{% block container %}
+
+<div class="row">
+    <div class="col-md-12">
+        <ul class="nav nav-pills flex-column flex-md-row mb-3">
+            <li class="nav-item">
+                <a class="nav-link active" href="{% url 'updateProfile' %}"><i class="bx bxs-user menu-icon tf-icons"></i> Profile
+                    Details</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'subscriptionDetails' %}"><i class="bx bxs-bell menu-icon tf-icons"></i> Subscription
+                    Details</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'updatePassword' %}"><i class="bx bxs-key menu-icon tf-icons"></i> Update
+                    Password</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'exportData' %}"><i class="bx bxs-file-export menu-icon tf-icons"></i> Export Data</a>
+            </li>
+        </ul>
+        <div class="card mb-4">
+            <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+                <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)"><i class="bx bx-menu bx-sm"></i></a>
+            </div>
+            <h5 class="card-header">Profile Details</h5>
+            
+            <!-- Account -->
+            <div class="card-body">
+                <form action="{% url 'updateProfile' %}" method="POST" id="myForm" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="d-flex align-items-start align-items-sm-center gap-4">
+                        {% load static %}
+                        {% if subAdmin.subAdminLogo %}
+                        <img id="logoPreview" src="/media/{{ subAdmin.subAdminLogo }}"
+                            alt="{{ subAdmin.subAdminLogo }} Logo" class="d-block rounded" height="100" width="100" />
+                        {% else %}
+                        <img id="logoPreview" src="{% static 'assets/img/defaultLogo.png' %}"
+                            alt="{{ subAdmin.subAdminLogo }} Logo" class="d-block rounded" height="100" width="100" />
+                        {% endif %}
+                        <div class="button-wrapper">
+                            <label for="upload" class="btn btn-primary me-2 mb-4" tabindex="0">
+                                <span class="d-none d-sm-block">Upload new Logo</span>
+                                <input type="file" id="upload" class="account-file-input" hidden
+                                    accept="image/png, image/jpeg" name="subAdminLogo" onchange="previewImage(event)" />
+                            </label>
+                            <button type="reset" class="btn btn-outline-secondary mb-4" onclick="resetImage()">
+                                <span class="d-none d-sm-block">Reset</span>
+                            </button>
+
+                            <p class="text-muted mb-0">Allowed JPG or PNG. Max size of 500KB</p>
+                        </div>
+                    </div>
+                    <hr class="mt-2" />
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="mb-3 col-md-6">
+                                <label class="form-label">Entity Name</label>
+                                <input class="form-control" type="text" name="subAdminName"
+                                    value="{{subAdmin.subAdminName}}" oninput="validateField(this)" id="name" />
+                                <span id="nameError" class="error-message"></span>
+                            </div>
+                            <div class="mb-3 col-md-6">
+                                <label class="form-label">Entity Type</label>
+                                <select id="select-field" name="subAdminType" class="form-control">
+                                    <option value="">Choose an option</option>
+                                    {% for option in options %}
+                                    <option value="{{option}}" {% if subAdmin.subAdminType == option %} selected {% endif %}>
+                                        {{ option }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="mb-3 col-md-6">
+                                <label class="form-label">Email</label>
+                                <input class="form-control" type="email" name="subAdminEmail"
+                                    value="{{subAdmin.subAdminEmail}}" oninput="validateField(this)" id="email" />
+                                <span id="emailError" class="error-message"></span>
+                            </div>
+                            <div class="mb-3 col-md-6">
+                                <label class="form-label">Phone Number</label>
+                                <div class="input-group input-group-merge">
+                                    <span class="input-group-text">IN (+91)</span>
+                                    <input type="number" name="subAdminPhone" class="form-control"
+                                        value="{{subAdmin.subAdminPhone}}" oninput="validateField(this)" id="phone" />
+                                </div>
+                                <span id="phoneError" class="error-message"></span>
+                            </div>
+                            <div class="mb-3 col-md-6">
+                                <label class="form-label">City</label>
+                                <input class="form-control" type="text" name="subAdminCity"
+                                    value="{{subAdmin.subAdminCity}}" />
+                            </div>
+                            <div class="mb-3 col-md-3">
+                                <label class="form-label">State</label>
+                                <input class="form-control" type="text" name="subAdminState"
+                                    value="{{subAdmin.subAdminState}}" />
+                            </div>
+                            <div class="mb-3 col-md-3">
+                                <label class="form-label">Pin Code</label>
+                                <input type="text" class="form-control" name="subAdminPinCode"
+                                    value="{{subAdmin.subAdminPinCode}}" maxlength="6" />
+                            </div>
+                            <div class="mt-2">
+                                <button type="submit" class="btn btn-primary me-2">Save Changes</button>
+                                <button type="reset" class="btn btn-outline-secondary">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="card">
+            <h5 class="card-header">Delete Account</h5>
+            <div class="card-body">
+                <div class="mb-3 col-12 mb-0">
+                    <div class="alert alert-warning">
+                        <h6 class="alert-heading fw-bold mb-1">Are you sure you want to delete
+                            your account?</h6>
+                        <p class="mb-0">Once you delete your account, there is no going back.
+                            Please be certain.</p>
+                    </div>
+                </div>
+
+                <button class="btn btn-danger" data-bs-toggle="modal"
+                    data-bs-target="#deleteAccount">Delete
+                    Account</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="deleteAccount" tabindex="-1" aria-labelledby="deleteAccountLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteAccountLongTitle">Confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{% url 'deleteProfile' %}" method="POST">
+                    {% csrf_token %}
+                    <div class="alert alert-warning">
+                        <h6 class="alert-heading fw-bold mb-1">Are you sure you want to delete
+                            your account?</h6>
+                        <p class="mb-0">Once you delete your account, there is no going back.
+                            Please be certain.</p>
+                    </div>
+                    <div class=" mb-3">
+                        <label class="form-label">Enter your account password</label>
+                        <input class="form-control" type="password" name="subAdminPassword" autofocus/>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" name="deleteProfile" />
+                        <label class="form-check-label">I confirm to delete my
+                            account </label>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="reset" data-bs-dismiss="modal" aria-label="Close"
+                            class="btn btn-outline-secondary">Close</button>
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const originalSrc = document.getElementById('logoPreview').src;
+
+    function previewImage(event) {
+        const reader = new FileReader();
+        reader.onload = function () {
+            const output = document.getElementById('logoPreview');
+            output.src = reader.result;
+        }
+        reader.readAsDataURL(event.target.files[0]);
+    }
+
+    function resetImage() {
+        const output = document.getElementById('logoPreview');
+        output.src = originalSrc;
+    }
+</script>
+{% endblock container %}

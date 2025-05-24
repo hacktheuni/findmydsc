@@ -1,0 +1,204 @@
+{% extends base %}
+{% block pendingWorkActive %} active {% endblock pendingWorkActive %}
+{% block title %} List of Pending Work - FindMyDSC {% endblock title %}
+{% block container %}
+<!-- Bordered Table -->
+
+<div class="card">
+    <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+        <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)"><i class="bx bx-menu bx-sm"></i></a>
+    </div>
+    {% if show_archived %}
+    <h3 class="card-header">Pending Work - Archived</h3>
+    {% else %}
+    <h3 class="card-header">Pending Work</h3>
+    {% endif %}
+    <div class="card-body">
+        <form action="{% url 'deletePendingWork' %}" method="post">
+            {% csrf_token %}
+            <div class="d-flex align-items-center" id="navbar-collapse">
+                <!-- Search -->
+                <div class="align-items-center">
+                    <div class="input-group input-group-merge" style="width: 22rem;">
+                        <span class="input-group-text"><i class="bx bx-search"></i></span>
+                        <input type="text" class="form-control" placeholder="Search..." id="search"
+                            onkeyup="filterSearchOthers()" />
+                    </div>
+                </div>
+                <div style="margin-left: 2rem;">
+                    <span id="rowCount"></span><span
+                        style="margin-left: .5rem; font-weight:100; font-size:small;">entries
+                        found</span>
+                </div>
+                <!-- /Search -->
+
+                <div class="flex-row d-flex align-items-center ms-auto">
+                    {% if show_archived %}
+                    <a href="{% url 'listPendingWork' %}" class="menu-link btn btn-outline-primary me-4">Show Active</a>
+                    {% else %}
+                    <a href="{% url 'listPendingWork' %}?archived=true"
+                        class="menu-link btn btn-outline-primary me-4">Show Archived</a>
+                    {% endif %}
+                    {% if not user.isClientUser or user.isClientUser and user.canReadWrite %}
+                    <a href="{% url 'addPendingWork' %}" class="menu-link btn btn-primary me-4">Add Pending Work</a>
+                    
+                    <input type="button" class="menu-link btn btn-outline-danger" data-bs-toggle="modal"
+                    data-bs-target="#deletePendingWork" value="Delete">
+                    {% endif  %}
+                </div>
+            </div>
+            <div class="table-responsive mt-3" style="max-height: calc(100vh - 199px);min-height: 5rem;">
+                <table class="table table-bordered" id="myTable">
+                    <thead class="sticky-top bg-white">
+                        <tr>
+                            <th onclick="sortTable(0)" style="width: 2rem;min-width: 2rem;">SRN</th>
+                            <th onclick="sortTable(1)" style="width: 20rem;min-width: 9rem;">Company Name</th>
+                            <th onclick="sortTable(2)" style="width: 30rem;">Group Name</th>
+                            <th onclick="sortTable(3)" style="width: 4rem;">Form No.</th>
+                            <th onclick="sortTable(4)" style="min-width: 8rem;width: 8rem;">Event Date</th>
+                            <th onclick="sortTable(5)" style="min-width: 10rem;width: 10rem;">Status</th>
+                            <th onclick="sortTable(6)" style="width: 7rem;min-width: 7rem;">Internal Due Date</th>
+                            <th onclick="sortTable(7)" style="width: 7rem;min-width: 7rem;">Due Date</th>
+                            <th onclick="sortTable(8)" style="width: 7rem;min-width: 7rem;">Remarks</th>
+                            <th onclick="sortTable(9)" style="min-width: 3rem;">SRN No.</th>
+                            <th onclick="sortTable(10)" style="width: 11rem;min-width: 10rem;">Responsible Person</th>
+                            <th onclick="sortTable(11)" style="width: 7rem;min-width: 7rem;">Billing</th>
+                            {% if not user.isClientUser or user.isClientUser and user.canReadWrite %}
+                            <th style="width: 4rem;">Action</th>
+                            <th style="width: 4rem;">Select</th>
+                            {% endif %}
+                        </tr>
+                        <tr>
+                            <td><input class="form-control" placeholder="Search..." type="hidden"
+                                    onkeyup="filterSearchOthers()" data-col="0" /></td>
+                            <td><input class="form-control" placeholder="Search..." type="search"
+                                    onkeyup="filterSearchOthers()" data-col="1" /></td>
+                            <td><input class="form-control" placeholder="Search..." type="search"
+                                    onkeyup="filterSearchOthers()" data-col="2" /></td>
+                            <td><input class="form-control" placeholder="Search..." type="search"
+                                    onkeyup="filterSearchOthers()" data-col="3" /></td>
+                            <td><input class="form-control" placeholder="Search..." type="search"
+                                    onkeyup="filterSearchOthers()" data-col="4" /></td>
+                            <td>
+                                <select class="form-control" style="padding: .4rem 1rem;"
+                                    onchange="filterSearchOthers()" data-col="5">
+                                    <option value="">All</option>
+                                    <option value="Doc. Pending From Client Side">Doc. Pending From Client Side</option>
+                                    <option value="Mailed For Sign">Mailed For Sign</option>
+                                    <option value="Signed Doc. Received">Signed Doc. Received</option>
+                                    <option value="Pending For Payment">Pending For Payment</option>
+                                    <option value="Pending For Approval">Pending For Approval</option>
+                                    <option value="Sent For Resubmission">Sent For Resubmission</option>
+                                    <option value="Approved">Approved</option>
+                                    <option value="Rejected">Rejected</option>
+                                    <option value="System Error">System Error</option>
+                                    <option value="Pending For DSC">Pending For DSC</option>
+                                    <option value="Kept on Hold">Kept on Hold</option>
+                                    <option value="Pending at our end">Pending at our end</option>
+                                </select>
+                            </td>
+                            <td><input class="form-control" placeholder="Search..." type="search"
+                                    onkeyup="filterSearchOthers()" data-col="6" /></td>
+                            <td><input class="form-control" placeholder="Search..." type="search"
+                                    onkeyup="filterSearchOthers()" data-col="7" /></td>
+                            <td><input class="form-control" placeholder="Search..." type="search"
+                                    onkeyup="filterSearchOthers()" data-col="8" /></td>
+                            <td><input class="form-control" placeholder="Search..." type="search"
+                                    onkeyup="filterSearchOthers()" data-col="9" /></td>
+                            <td><input class="form-control" placeholder="Search..." type="search"
+                                    onkeyup="filterSearchOthers()" data-col="10" /></td>
+                            <td>
+                                <select class="form-control" style="padding: .4rem 1rem;"
+                                    onchange="filterSearchOthers()" data-col="11">
+                                    <option value="">All</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Generated">Generated</option>
+                                    <option value="Mailed">Mailed</option>
+                                    <option value="Received">Received</option>
+                                </select>
+                            </td>
+                            {% if not user.isClientUser or user.isClientUser and user.canReadWrite %}
+                            <td></td>
+                            <td style="text-align: center;">
+                                <input class="form-check-input" type="checkbox" value="" id="selectAll" />
+                            </td>
+                            {% endif %}
+                        </tr>
+                    </thead>
+
+
+                    {% load static %}
+
+                    <tbody>
+                        {% for pw in pendingWork %}
+                        <tr>
+                            <td>{{ pw.indexSRN }}</td>
+                            <td>{{ pw.companyID.companyName }}</td>
+                            <td>{{ pw.companyID.groupID.groupName }}</td>
+                            {% if not user.isClientUser or user.isClientUser and user.canReadWrite %}
+                            <td><a href="{% url 'updatePendingWork' pw.pendingWorkID %}">{{ pw.formID.formNo }}</a></td>
+                            {% else %}
+                            <td>{{ pw.formID.formNo }}</td>
+                            {% endif %}
+                            <td>{{ pw.eventDate|date:"d-m-Y" }}</td>
+                            <td {% if pw.is_approved %}style="color: green;" {% elif pw.is_marked_for_resubmission %}style="color: red;" {% elif pw.is_pending_for_approval %}style="color: blue;" {% elif pw.is_rejected %}style="color: grey;" {% endif %}>{{pw.status}}</td>
+                            <td {% if pw.is_internal_expired %}style="color: red;" {% elif pw.is_internal_due_soon %}style="color: orange;" {% endif %}>{{ pw.internalDueDate|date:"d-m-Y" }}</td>
+                            <td {% if pw.is_actual_expired %}style="color: red;" {% elif pw.is_actual_due_soon %}style="color: orange;" {% endif %}>{{ pw.actualDueDate|date:"d-m-Y" }}</td>
+                            <td>{{ pw.remark }}</td>
+                            <td>{{ pw.srnNo }}</td>
+                            <td>{{ pw.userID.userName }}</td>
+                            <td>{{ pw.billing }}</td>
+                            {% if not user.isClientUser or user.isClientUser and user.canReadWrite %}
+                            <td style="text-align: center;">
+                                <a href="{% url 'updatePendingWork' pw.pendingWorkID %}">
+                                    <img src="{% static 'assets/img/pencil.png' %}" alt="Edit" style="width: 1.7rem;">
+                                </a>
+                            </td>
+                            <td style="text-align: center;">
+                                <input class="form-check-input selectItem" type="checkbox" name="pendingWorkIDs"
+                                    value="{{ pw.pendingWorkID }}" />
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+            </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="deletePendingWork" tabindex="-1" aria-labelledby="deletePendingWorkLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deletePendingWorkLongTitle">Confirmation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <h6 class="alert-heading fw-bold mb-1">Are you sure you want to delete
+                            Selected Pending Work Records</h6>
+                        <p class="mb-0">Once you delete your dsc, there is no going back.
+                            Please be certain.</p>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" name="deletePendingWork" />
+                        <label class="form-check-label">I confirm to delete the selected Pending Work Records</label>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="reset" data-bs-dismiss="modal" aria-label="Close"
+                            class="btn btn-outline-secondary">Close</button>
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </form>
+</div>
+</div>
+
+<!-- / Bordered Table -->
+
+{% endblock %}

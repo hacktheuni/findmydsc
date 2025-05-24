@@ -1,0 +1,31 @@
+.menu .app-brand.demo {
+  height: 100px;
+  margin-top: 12px;
+}
+
+.app-brand-logo.demo svg {
+  width: 22px;
+  height: 38px;
+}
+
+.app-brand-text.demo {
+  font-size: 1.75rem;
+  letter-spacing: -0.5px;
+}
+
+/* ! For .layout-navbar-fixed added fix padding top to .layout-page */
+/* Detached navbar */
+
+/* Default navbar */
+
+/* Navbar page z-index issue solution */
+
+/*
+* Content
+******************************************************************************/
+
+/* Vertical spacing adjustments for better cross-browser consistency */
+
+/*
+* Layout demo
+******************************************************************************/

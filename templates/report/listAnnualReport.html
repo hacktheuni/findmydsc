@@ -1,0 +1,139 @@
+{% extends base %}
+{% block reportActive %} active open{% endblock reportActive %}
+{% block listAnnualActive %} active {% endblock listAnnualActive %}
+{% block title %} Annual Filing Report - FindMyDSC {% endblock title %}
+{% block container %}
+<!-- Bordered Table -->
+<div class="card">
+    <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+        <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)"><i class="bx bx-menu bx-sm"></i></a>
+    </div>
+    <h3 class="card-header">Annual Filing Report</h3>
+    <div class="card-body">
+        <div class="d-flex align-items-center" id="navbar-collapse">
+            <!-- Search -->
+            <div class="align-items-center">
+                <div class="input-group input-group-merge" style="width: 22rem;">
+                    <span class="input-group-text"><i class="bx bx-search"></i></span>
+                    <input type="text" class="form-control" placeholder="Search..." id="search"
+                        onkeyup="filterSearchOthers()" />
+                </div>
+            </div>
+            <div style="margin-left: 2rem;">
+                <span id="rowCount"></span><span style="margin-left: .5rem; font-weight:100; font-size:small;">entries
+                    found</span>
+            </div>
+            <!-- /Search -->
+        </div>
+        <div class="table-responsive mt-3" style="max-height: calc(100vh - 199px);min-height: 5rem;">
+            <table class="table table-bordered" id="myTable">
+                <thead class="sticky-top bg-white">
+                    <tr>
+                        <th onclick="sortTable(0)" style="width: 4rem;">SRN Date</th>
+                        <th onclick="sortTable(1)" style="width: 4rem;">SRN No.</th>
+                        <th onclick="sortTable(2)" style="width: 7rem;">Company Name</th>
+                        <th onclick="sortTable(3)" style="width: 6rem;">Group Name</th>
+                        <th onclick="sortTable(4)" style="width: 6rem;">Status</th>
+                        <th onclick="sortTable(5)" style="width: 5rem;">Form No.</th>
+                        <th onclick="sortTable(6)" style="width: 3rem;">SRN Challan Amt</th>
+                    </tr>
+                    <tr>
+                        <td><input class="form-control" placeholder="Search..." type="search"
+                                onkeyup="filterSearchOthers()" data-col="0" /></td>
+                        <td><input class="form-control" placeholder="Search..." type="search"
+                                onkeyup="filterSearchOthers()" data-col="1" /></td>
+                        <td><input class="form-control" placeholder="Search..." type="search"
+                                onkeyup="filterSearchOthers()" data-col="2" /></td>
+                        <td><input class="form-control" placeholder="Search..." type="search"
+                                onkeyup="filterSearchOthers()" data-col="3" /></td>
+                        <td></td>
+                        <td><input class="form-control" placeholder="Search..." type="search"
+                                onkeyup="filterSearchOthers()" data-col="4" /></td>
+                        <td><input class="form-control" placeholder="Search..." type="search"
+                                onkeyup="filterSearchOthers()" data-col="5" /></td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for af in annualFilies %}
+                        {% if af.statusDPT3 == 'Approved' %}
+                        <tr>
+                            <td>{{ af.srnDateDPT3|date:"d-m-Y" }}</td>
+                            <td>{{ af.srnNoDPT3 }}</td>
+                            <td>{{ af.companyID.companyName }}</td>
+                            <td>{{ af.companyID.groupID.groupName }}</td>
+                            <td>{{ af.statusDPT3 }}</td>
+                            <td>DPT3</td>
+                            <td>{{ af.amtDPT3 }}</td>
+                        </tr>
+                        {% endif %}
+                        
+                        {% if af.statusMGT14  == 'Approved' %}
+                        <tr>
+                            <td>{{ af.srnDateMGT14|date:"d-m-Y" }}</td>
+                            <td>{{ af.srnNoMGT14 }}</td>
+                            <td>{{ af.companyID.companyName }}</td>
+                            <td>{{ af.companyID.groupID.groupName }}</td>
+                            <td>{{ af.statusMGT14 }}</td>
+                            <td>MGT14</td>
+                            <td>{{ af.amtMGT14 }}</td>
+                        </tr>
+                        {% endif %}
+                
+                        {% if af.statusAOC4 == 'Approved' %}
+                        <tr>
+                            <td>{{ af.srnDateAOC4|date:"d-m-Y" }}</td>
+                            <td>{{ af.srnNoAOC4 }}</td>
+                            <td>{{ af.companyID.companyName }}</td>
+                            <td>{{ af.companyID.groupID.groupName }}</td>
+                            <td>{{ af.statusAOC4 }}</td>
+                            <td>AOC4</td>
+                            <td>{{ af.amtAOC4 }}</td>
+                        </tr>
+                        {% endif %}
+                
+                        {% if af.statusMGT7 == 'Approved' %}
+                        <tr>
+                            <td>{{ af.srnDateMGT7|date:"d-m-Y" }}</td>
+                            <td>{{ af.srnNoMGT7 }}</td>
+                            <td>{{ af.companyID.companyName }}</td>
+                            <td>{{ af.companyID.groupID.groupName }}</td>
+                            <td>{{ af.statusMGT7 }}</td>
+                            <td>MGT7</td>
+                            <td>{{ af.amtMGT7 }}</td>
+                        </tr>
+                        {% endif %}
+                
+                        {% if af.statusForm11 == 'Approved' %}
+                        <tr>
+                            <td>{{ af.srnDateForm11|date:"d-m-Y" }}</td>
+                            <td>{{ af.srnNoForm11 }}</td>
+                            <td>{{ af.companyID.companyName }}</td>
+                            <td>{{ af.companyID.groupID.groupName }}</td>
+                            <td>{{ af.statusForm11 }}</td>
+                            <td>Form11</td>
+                            <td>{{ af.amtForm11 }}</td>
+                        </tr>
+                        {% endif %}
+                
+                        {% if af.statusForm8 == 'Approved' %}
+                        <tr>
+                            <td>{{ af.srnDateForm8|date:"d-m-Y" }}</td>
+                            <td>{{ af.srnNoForm8 }}</td>
+                            <td>{{ af.companyID.companyName }}</td>
+                            <td>{{ af.companyID.groupID.groupName }}</td>
+                            <td>{{ af.statusForm8 }}</td>
+                            <td>Form8</td>
+                            <td>{{ af.amtForm8 }}</td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+                
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- / Bordered Table -->
+
+{% endblock %}

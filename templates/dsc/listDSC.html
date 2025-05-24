@@ -1,0 +1,215 @@
+{% extends base %}
+{% block dscActive %} active {% endblock dscActive %}
+{% block title %} List of DSCs - FindMyDSC {% endblock title %}
+{% block container %}
+<!-- Bordered Table -->
+<div class="card">
+  <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+    <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)"><i class="bx bx-menu bx-sm"></i></a>
+  </div>
+  <h3 class="card-header">DSC</h3>
+  <div class="card-body">
+    <form action="{% url 'deleteDSC' %}" method="post">
+      {% csrf_token %}
+      <div class="d-flex align-items-center" id="navbar-collapse">
+        <!-- Search -->
+        <div class="align-items-center">
+          <div class="input-group input-group-merge" style="width: 22rem;">
+            <span class="input-group-text"><i class="bx bx-search"></i></span>
+            <input type="text" class="form-control" placeholder="Search..." id="search" onkeyup="filterSearch()" />
+          </div>
+        </div>
+        <div style="margin-left: 2rem;">
+          <span id="rowCount"></span><span style="margin-left: .5rem; font-weight:100; font-size:small;">entries
+            found</span>
+        </div>
+        <!-- /Search -->
+
+        <div class="flex-row d-flex align-items-center ms-auto">
+          <a href="{% url 'addDSC' %}" class="menu-link btn btn-primary me-4">Add DSC</a>
+          <input type="button" class="menu-link btn btn-outline-danger" data-bs-toggle="modal"
+            data-bs-target="#deleteDSC" value="Delete">
+        </div>
+      </div>
+      <div class="table-responsive mt-3" style="max-height: calc(100vh - 199px);min-height: 5rem;">
+        <table class="table table-bordered" id="myTable">
+          <thead class="sticky-top bg-white">
+            <tr>
+              <th onclick="sortTable(0)" style="width: 20rem;min-width: 9rem;">Client Name</th>
+              <th onclick="sortTable(1)" style="width: 30rem;">Company Name</th>
+              <th onclick="sortTable(2)" style="width: 4rem;">Status</th>
+              <th onclick="sortTable(3)" style="width: 6rem;min-width: 6rem;">Location</th>
+              <th onclick="sortTable(4)" style="min-width: 9rem;width: 12rem;">Group Name</th>
+              <th onclick="sortTable(5)" style="min-width: 10rem;width: 10rem;">Renewal Date</th>
+              <th onclick="sortTable(6)" style="width: 11rem;min-width: 10rem;">Modified Date</th>
+              <th style="width: 4rem;">Action</th>
+              <th style="width: 4rem;">Select</th>
+            </tr>
+            <tr>
+              <td><input class="form-control" placeholder="Search..." type="search" onkeyup="filterSearch()"
+                  data-col="0" /></td>
+              <td><input class="form-control" placeholder="Search..." type="search" onkeyup="filterSearch()"
+                  data-col="1" /></td>
+              <td>
+                <select class="form-control" style="padding: .4rem 1rem;" onchange="filterSearch()" data-col="2">
+                  <option value="">All</option>
+                  <option value="in">In</option>
+                  <option value="out">Out</option>
+                </select>
+              </td>
+              <td><input class="form-control" placeholder="Search..." type="search" onkeyup="filterSearch()"
+                  data-col="3" /></td>
+              <td><input class="form-control" placeholder="Search..." type="search" onkeyup="filterSearch()"
+                  data-col="4" /></td>
+              <td>
+                <select class="form-control" id="renewalDateFilter" onchange="toggleDateInputs(); filterSearch()"
+                  data-col="5">
+                  <option value="">All</option>
+                  <option value="this-week">This Week</option>
+                  <option value="this-month">This Month</option>
+                  <option value="after-specific-date">After a Specific Date</option>
+                  <option value="before-specific-date">Before a Specific Date</option>
+                </select>
+                <div id="dateInputContainer" style="display: none;">
+                  <input type="date" id="specificDate" class="form-control" onchange="filterSearch()" />
+                </div>
+              </td>
+
+
+              <td><input class="form-control" placeholder="Search..." type="search" onkeyup="filterSearch()"
+                  data-col="6" /></td>
+              <td></td>
+              <td style="text-align: center;">
+                <input class="form-check-input" type="checkbox" value="" id="selectAll" />
+              </td>
+            </tr>
+          </thead>
+
+
+          {% load static %}
+
+          <tbody>
+            {% for updatedDSC in updatedDSCs %}
+            <tr>
+              <td><a href="{% url 'updateDSC' updatedDSC.dscID %}">{{ updatedDSC.clientName }}</a></td>
+              <td>{{ updatedDSC.companyID.companyName }}</td>
+              <td>{{ updatedDSC.status }}</td>
+              <td>{{ updatedDSC.location }}</td>
+              <td>{{ updatedDSC.companyID.groupID.groupName }}</td>
+
+              <!-- Apply red color if renewalDate has passed -->
+              <td {% if updatedDSC.is_expired %}style="color: red;" {% endif %}>
+                {{ updatedDSC.renewalDate|date:"d-m-Y" }}
+              </td>
+
+              <td>{{ updatedDSC.modifiedDate|date:"d-m-Y H:i:s" }}</td>
+              <td style="text-align: center;">
+                <a href="{% url 'updateDSC' updatedDSC.dscID %}">
+                  <img src="{% static 'assets/img/pencil.png' %}" alt="Edit" style="width: 1.7rem;">
+                </a>
+              </td>
+              <td style="text-align: center;">
+                <input class="form-check-input selectItem" type="checkbox" name="dscIDs"
+                  value="{{ updatedDSC.dscID }}" />
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+      </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="deleteDSC" tabindex="-1" aria-labelledby="deleteDSCLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteDSCLongTitle">Confirmation</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="alert alert-warning">
+            <h6 class="alert-heading fw-bold mb-1">Are you sure you want to delete
+              Selected dsc</h6>
+            <p class="mb-0">Once you delete your dsc, there is no going back.
+              Please be certain.</p>
+          </div>
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" name="deleteDSC" />
+            <label class="form-check-label">I confirm to delete the selected dsc</label>
+          </div>
+          <div class="modal-footer">
+            <button type="reset" data-bs-dismiss="modal" aria-label="Close"
+              class="btn btn-outline-secondary">Close</button>
+            <button type="submit" class="btn btn-danger">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </form>
+</div>
+</div>
+
+
+{% if whatsurl %}
+<button id="openWhatsAppBtn" style="display: none;">Open WhatsApp</button>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var whatsappUrl = "{{ whatsurl }}";
+
+    if (whatsappUrl) {
+      var whatsappBtn = document.getElementById('openWhatsAppBtn');
+      whatsappBtn.style.display = 'block';
+
+      whatsappBtn.addEventListener('click', function () {
+        window.open(whatsappUrl, '_blank');
+        whatsappBtn.style.display = 'none';
+      });
+
+      // Automatically click after form submission
+      whatsappBtn.click();
+    }
+  });
+</script>
+
+<script>
+  function archiveDSC(dscID) {
+    fetch(`/archive-dsc/${dscID}/`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCSRFToken(), // Add your CSRF token logic here
+      },
+    })
+      .then(response => response.json())
+      .then(data => {
+        alert(data.message);
+        location.reload(); // Reload the page to update the table
+      });
+  }
+
+  function pinDSC(dscID) {
+    fetch(`/pin-dsc/${dscID}/`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCSRFToken(),
+      },
+    })
+      .then(response => response.json())
+      .then(data => {
+        alert(data.message);
+        location.reload();
+      });
+  }
+
+  function getCSRFToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]').value;
+  }
+
+</script>
+{% endif %}
+<!-- / Bordered Table -->
+
+{% endblock %}

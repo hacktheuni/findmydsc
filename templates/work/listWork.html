@@ -1,0 +1,111 @@
+{% extends base %}
+{% block masterActive %} active open {% endblock masterActive %}
+{% block workActive %} active {% endblock workActive %}
+{% block title %} List of Companies - FindMyDSC {% endblock title %}
+{% block container %}
+<!-- Bordered Table -->
+<div class="card">
+  <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+    <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+      <i class="bx bx-menu bx-sm"></i>
+    </a>
+  </div>
+  <h3 class="card-header">Work</h3>
+  <div class="card-body">
+    <form action="{% url 'deleteWork' %}" method="post">
+      {% csrf_token %}
+      <div class="d-flex align-items-center" id="navbar-collapse">
+        <!-- Search -->
+        <div class="align-items-center">
+          <div class="input-group input-group-merge" style="width: 22rem;">
+            <span class="input-group-text" id="basic-addon-search31"><i class="bx bx-search"></i></span>
+            <input type="text" class="form-control" placeholder="Search..." id="search" onkeyup="filterSearchOthers()" />
+          </div>
+        </div>
+        <div style="margin-left: 2rem;"><span id="rowCount"></span><span
+            style="margin-left: .5rem; font-weight:100; font-size:small;">entries found</span></div>
+        <!-- /Search -->
+
+        <div class="flex-row d-flex align-items-center ms-auto">
+          <a href="{% url 'addWork' %}" class="menu-link btn btn-primary me-4">
+            Add Work
+          </a>
+          <input type="button" class="menu-link btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteWork" value="Delete">
+        </div>
+      </div>
+      <div class="table-responsive mt-3" style="max-height: calc(100vh - 199px);min-height: 5rem;">
+        <table class="table table-bordered" id="myTable">
+          <thead class="sticky-top bg-white">
+            <tr>
+              <th onclick="sortTable(0)" style="width: 30rem;">Form No.</th>
+              <th onclick="sortTable(1)" style="min-width: 9rem;width: 12rem;">Matter</th>
+              <th onclick="sortTable(2)" style="min-width: 9rem;width: 12rem;">Filing Days</th>
+              <th style="width: 0%;">Action</th>
+              <th style="width: 0%;">Select</th>
+            </tr>
+            <tr>
+              <td><input class="column-search-bar form-control" placeholder="Search..." type="search"
+                  onkeyup="filterSearchOthers()" data-col="0"></td>
+              <td><input class="column-search-bar form-control" placeholder="Search..." type="search"
+                  onkeyup="filterSearchOthers()" data-col="1"></td>
+              <td><input class="column-search-bar form-control" placeholder="Search..." type="search"
+                  onkeyup="filterSearchOthers()" data-col="1"></td>
+              <td></td>
+              <td style="text-align: center;">
+                <input class="form-check-input" type="checkbox" value="" id="selectAll" />
+              </td>
+            </tr>
+          </thead>
+          <tbody>
+            {% for w in work %}
+            <tr>
+              <td><a href="{% url 'updateWork' w.formID %}">{{w.formNo}}</a></td>
+              <td>{{w.matter}}</td>
+              <td>{{w.filingDays}}</td>
+              <td style="text-align:center;">
+                {% load static %}
+                <a href="{% url 'updateWork' w.formID %}"><img src="{% static 'assets/img/pencil.png' %}" alt="gg"
+                    style="width: 1.7rem;"></a>
+              </td>
+              <td style="text-align: center;">
+                <input class="form-check-input selectItem" type="checkbox" name="formIDs"
+                  value="{{w.formID}}" />
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <!-- Modal -->
+      <div class="modal fade" id="deleteWork" tabindex="-1" aria-labelledby="deleteWorkLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="deleteWorkLongTitle">Confirmation</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="alert alert-warning">
+                <h6 class="alert-heading fw-bold mb-1">Are you sure you want to delete
+                  Selected Work Records</h6>
+                <p class="mb-0">Once you delete your company, there is no going back.
+                  Please be certain.</p>
+              </div>
+              <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" name="deleteWork" />
+                <label class="form-check-label">I confirm to delete the selected Work Records</label>
+              </div>
+              <div class="modal-footer">
+                <button type="reset" data-bs-dismiss="modal" aria-label="Close"
+                  class="btn btn-outline-secondary">Close</button>
+                <button type="submit" class="btn btn-danger">Delete</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<!--/ Bordered Table -->
+{% endblock container %}

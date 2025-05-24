@@ -1,0 +1,107 @@
+{% extends base %}
+{% block myProfileActive %} active open{% endblock myProfileActive %}
+{% block adminActive %} active {% endblock adminActive %}
+{% block title %} Subscription Details - FindMyDSC {% endblock title %}
+{% block container %}
+
+<div class="row">
+    <div class="col-md-12">
+        <ul class="nav nav-pills flex-column flex-md-row mb-3">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'updateProfile' %}"><i class="bx bxs-user menu-icon tf-icons"></i> Profile
+                    Details</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="{% url 'subscriptionDetails' %}"><i class="bx bxs-bell menu-icon tf-icons"></i> Subscription
+                    Details</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'updatePassword' %}"><i class="bx bxs-key menu-icon tf-icons"></i> Update
+                    Password</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'exportData' %}"><i class="bx bxs-file-export menu-icon tf-icons"></i> Export Data</a>
+            </li>
+        </ul>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <h3 class="fw-bold py-3 mb-4">Your Current Plan</h3>
+        <div class="row mb-5">
+            <div class="mb-3 col-3">
+                <div class="card text-center">
+                    <h3 class="card-header">{{ activePlan.planID.planName }}</h3>
+                    <div class="card-body">
+                        <ul class="list-group px-0">
+                            <li class="list-group-item d-flex align-items-center">
+                                <i class='bx bx-check' style='color:#00c315'></i>
+                                {{ activePlan.planID.DSCInPlan }} DSCs Movement
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3 col-6">
+                <div class="card">
+                    <h3 class="card-header">Your Time Period</h3>
+                    <div class="card-body">
+                        <h5><strong>Start Date:</strong> {{ start_date|date:"d-m-Y H:i:s" }}</h5>
+                        <h5><strong>End Date:</strong> {{ end_date|date:"d-m-Y H:i:s" }}</h5>
+                        <h5><strong>Time Remaining:</strong> {{ formatted_time_remaining }}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <h3 class="fw-bold py-3 mb-4">Upgrade your plan</h3>
+        <form action="{% url 'selectPlan' %}" method="POST">
+            {% csrf_token %}
+            <div class="row mb-5 justify-content-center">
+                {% for plan in subscriptionPlan %}
+                <div class="mb-3" style="width: 20rem;">
+                    <div class="card text-center">
+                        <h4 class="card-header">{{ plan.planName }}</h4>
+                        <div class="card-body">
+                            {% if plan.planName != 'Free Trial' and plan.planMonthlyPrice != 0 %}
+                            <span class="card-title" style="font-size: 2rem;">
+                                ₹{{ plan.planMonthlyPrice }}
+                            </span>
+                            <span>/monthly</span>
+                            {% else %}
+                            <span class="card-title" style="font-size: 2rem;">
+                                15 days
+                            </span>
+                            {% endif %}
+
+                            <ul class="list-group px-0">
+                                <li class="list-group-item d-flex align-items-center">
+                                    <i class='bx bx-check' style='color:#00c315'></i>
+                                    {{ plan.DSCInPlan }} DSCs Movement
+                                </li>
+                            </ul>
+
+                            <div class="form-check mt-4" style="text-align: left;">
+                                <input class="form-check-input" type="radio" name="planID"
+                                value="{{ plan.planID }}">
+                                <label style="color: black;font-size: large;font-weight: 500;">
+                                    Upgrade To
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="row">
+                <button class="btn btn-primary m-auto w-25" type="submit">Choose Plan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+{% endblock container %}

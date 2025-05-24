@@ -1,0 +1,551 @@
+{% extends base %}
+{% block annualActive %} active {% endblock annualActive %}
+{% block title %} Add Annual Filing - FindMyDSC {% endblock title %}
+{% block container %}
+<!-- Bordered Table -->
+
+<style>
+  .dropdown-container {
+    position: relative;
+    display: inline-block;
+  }
+
+  .dropdown-values {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    width: 45%;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    height: auto;
+    max-height: 25rem;
+    overflow-y: auto;
+  }
+
+  .dropdown-values div {
+    color: black;
+    padding: .2rem .5rem;
+    text-decoration: none;
+    display: block;
+    cursor: pointer;
+  }
+
+  .dropdown-values div:hover {
+    background-color: #f1f1f1;
+  }
+
+  .dropdown-values div.highlight {
+    background-color: #dcdcdc;
+  }
+</style>
+<div class="card">
+  <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+    <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+      <i class="bx bx-menu bx-sm"></i>
+    </a>
+  </div>
+  <h3 class="card-header">Add Annual Finling</h3>
+  <div class="card-body">
+    <form action="{% url 'addAnnual' %}" method="POST">
+      {% csrf_token %}
+      <div class="row">
+        <div class="mb-3 col-md-6">
+          <label class="form-label">Company Name</label>
+          <input type="text" class="companyName form-control" placeholder="COMPANY1" name="companyName"
+            value="{{form_data.companyName|default:''}}" id="companyName" onfocus="showDropdown()"
+            onkeyup="fetchAndCheckCompanyName()" oninput="filterFunction()" onclick="showDropdown()" autocomplete="off"
+            required>
+          <div class="dropdown-arrow" onclick="toggleDropdown()"></div>
+          <div class="dropdown-values" id="dropdown-values" style="display: none;">
+            {% for company in companies %}
+            <div onclick="selectValue('{{company.companyName}}')">{{company.companyName}}</div>
+            {% endfor %}
+          </div>
+          <div id="messageBox"></div>
+        </div>
+        <input class="form-control" type="hidden" id="companyType" value="" />
+        <div class="mb-3 col-md-3">
+          <label class="form-label">Group Name</label>
+          <input class="form-control" type="text" name="groupName" id="groupName" value="{{form_data.groupName|default:''}}" disabled required />
+        </div>
+        <div class="mb-3 col-md-3">
+          <label class="form-label">Financial Year</label>
+          <select name="financialYear" class="form-select" id="financialYear" required>
+            <!-- Options will be added dynamically -->
+          </select>
+        </div>
+        <div class="col-md-1 my-auto pt-4">
+          <label class="form-label">
+            <h5>DPT-3</h5>
+          </label>
+        </div>
+        <div class="mb-3 col-md-3">
+          <label class="form-label">Status</label>
+          <select name="statusDPT3" class="form-select" id="status" required>
+            <option value="N/A" {% if form_data.statusDPT3 == 'N/A' %}selected{% endif %}>N/A</option>
+            <option value="Pending" {% if form_data.statusDPT3 == 'Pending' %}selected{% endif %}>Pending</option>
+            <option value="Approved" {% if form_data.statusDPT3 == 'Approved' %}selected{% endif %}>Approved</option>
+          </select>
+        </div>
+        <div class="mb-3 col-md-2">
+          <label class="form-label">SRN NO.</label>
+          <input class="form-control" type="text" name="srnNoDPT3" value="{{form_data.srnNoDPT3|default:''}}"
+            required />
+        </div>
+        <div class="mb-3 col-md-3">
+          <label class="form-label">SRN Date</label>
+          <input class="form-control" type="date" name="srnDateDPT3" value="{{form_data.srnDateDPT3|default:''}}"
+            required />
+        </div>
+        <div class="mb-3 col-md-3">
+          <label class="form-label">Amount</label>
+          <input class="form-control" type="text" placeholder="999" name="amtDPT3"
+            value="{{form_data.amtDPT3|default:''}}" required />
+        </div>
+        <div class="my-auto col-md-1">
+          <label class="form-label">
+            <h5>MGT-14</h5>
+          </label>
+        </div>
+        <div class="mb-3 col-md-3">
+          <select name="statusMGT14" class="form-select" id="status">
+            <option value="N/A" {% if form_data.statusMGT14 == 'N/A' %}selected{% endif %}>N/A</option>
+            <option value="Pending" {% if form_data.statusMGT14 == 'Pending' %}selected{% endif %}>Pending</option>
+            <option value="Approved" {% if form_data.statusMGT14 == 'Approved' %}selected{% endif %}>Approved</option>
+          </select>
+        </div>
+        <div class="mb-3 col-md-2">
+          <input class="form-control" type="text" name="srnNoMGT14" value="{{form_data.srnNoMGT14|default:''}}" />
+        </div>
+        <div class="mb-3 col-md-3">
+          <input class="form-control" type="date" name="srnDateMGT14" value="{{form_data.srnDateMGT14|default:''}}" />
+        </div>
+        <div class="mb-3 col-md-3">
+          <input class="form-control" type="text" placeholder="999" name="amtMGT14"
+            value="{{form_data.amtMGT14|default:''}}" />
+        </div>
+        <div class="my-auto col-md-1">
+          <label class="form-label">
+            <h5>AOC-4</h5>
+          </label>
+        </div>
+        <div class="mb-3 col-md-3">
+          <select name="statusAOC4" class="form-select" id="status">
+            <option value="N/A" {% if form_data.statusAOC4 == 'N/A' %}selected{% endif %}>N/A</option>
+            <option value="Pending" {% if form_data.statusAOC4 == 'Pending' %}selected{% endif %}>Pending</option>
+            <option value="Approved" {% if form_data.statusAOC4 == 'Approved' %}selected{% endif %}>Approved</option>
+          </select>
+        </div>
+        <div class="mb-3 col-md-2">
+          <input class="form-control" type="text" name="srnNoAOC4" value="{{form_data.srnNoAOC4|default:''}}" />
+        </div>
+        <div class="mb-3 col-md-3">
+          <input class="form-control" type="date" name="srnDateAOC4" value="{{form_data.srnDateAOC4|default:''}}" />
+        </div>
+        <div class="mb-3 col-md-3">
+          <input class="form-control" type="text" placeholder="999" name="amtAOC4"
+            value="{{form_data.amtAOC4|default:''}}" />
+        </div>
+        <div class="my-auto col-md-1">
+          <label class="form-label">
+            <h5>MGT-7</h5>
+          </label>
+        </div>
+        <div class="mb-3 col-md-3">
+          <select name="statusMGT7" class="form-select" id="status">
+            <option value="N/A" {% if form_data.statusMGT7 == 'N/A' %}selected{% endif %}>N/A</option>
+            <option value="Pending" {% if form_data.statusMGT7 == 'Pending' %}selected{% endif %}>Pending</option>
+            <option value="Approved" {% if form_data.statusMGT7 == 'Approved' %}selected{% endif %}>Approved</option>
+          </select>
+        </div>
+        <div class="mb-3 col-md-2">
+          <input class="form-control" type="text" name="srnNoMGT7" value="{{form_data.srnNoMGT7|default:''}}" />
+        </div>
+        <div class="mb-3 col-md-3">
+          <input class="form-control" type="date" name="srnDateMGT7" value="{{form_data.srnDateMGT7|default:''}}" />
+        </div>
+        <div class="mb-3 col-md-3">
+          <input class="form-control" type="text" placeholder="999" name="amtMGT7"
+            value="{{form_data.amtMGT7|default:''}}" />
+        </div>
+        <div class="my-auto col-md-1">
+          <label class="form-label">
+            <h5>Form 11</h5>
+          </label>
+        </div>
+        <div class="mb-3 col-md-3">
+          <select name="statusForm11" class="form-select" id="status">
+            <option value="N/A" {% if form_data.statusForm11 == 'N/A' %}selected{% endif %}>N/A</option>
+            <option value="Pending" {% if form_data.statusForm11 == 'Pending' %}selected{% endif %}>Pending</option>
+            <option value="Approved" {% if form_data.statusForm11 == 'Approved' %}selected{% endif %}>Approved</option>
+          </select>
+        </div>
+        <div class="mb-3 col-md-2">
+          <input class="form-control" type="text" name="srnNoForm11" value="{{form_data.srnNoForm11|default:''}}" />
+        </div>
+        <div class="mb-3 col-md-3">
+          <input class="form-control" type="date" name="srnDateForm11" value="{{form_data.srnDateForm11|default:''}}" />
+        </div>
+        <div class="mb-3 col-md-3">
+          <input class="form-control" type="text" placeholder="999" name="amtForm11"
+            value="{{form_data.amtForm11|default:''}}" />
+        </div>
+        <div class="my-auto col-md-1">
+          <label class="form-label">
+            <h5>Form 8</h5>
+          </label>
+        </div>
+        <div class="mb-3 col-md-3">
+          <select name="statusForm8" class="form-select" id="status">
+            <option value="N/A" {% if form_data.statusForm8 == 'N/A' %}selected{% endif %}>N/A</option>
+            <option value="Pending" {% if form_data.statusForm8 == 'Pending' %}selected{% endif %}>Pending</option>
+            <option value="Approved" {% if form_data.statusForm8 == 'Approved' %}selected{% endif %}>Approved</option>
+          </select>
+        </div>
+        <div class="mb-3 col-md-2">
+          <input class="form-control" type="text" name="srnNoForm8" value="{{form_data.srnNoForm8|default:''}}" />
+        </div>
+        <div class="mb-3 col-md-3">
+          <input class="form-control" type="date" name="srnDateForm8" value="{{form_data.srnDateForm8|default:''}}" />
+        </div>
+        <div class="mb-3 col-md-3">
+          <input class="form-control" type="text" placeholder="999" name="amtForm8"
+            value="{{form_data.amtForm8|default:''}}" />
+        </div>
+        <div class="mb-3 col-md-1">
+          <label class="form-label">Archive</label>
+          <input class="form-check-input form-control" name="isArchived" type="checkbox" value="True" id="archive" />
+        </div>
+        <div class="mb-3 col-md-1">
+          <label class="form-label">Pin</label>
+          <input class="form-check-input form-control" name="isPinned" type="checkbox" value="True" id="pin" />
+        </div>
+        <div class="mt-2">
+          <button type="submit" class="btn btn-primary me-2">Save</button>
+          <button type="reset" class="btn btn-outline-secondary" onclick="checkRequiredFieldsForStatus()">Reset</button>
+        </div>
+    </form>
+  </div>
+</div>
+
+
+<script>
+  const currentYear = new Date().getFullYear();
+  const startYear = currentYear - 3;
+  const totalYears = 8;
+
+  const selectElement = document.getElementById('financialYear');
+
+  for (let i = 0; i < totalYears; i++) {
+    const year = startYear + i;
+    const nextYear = year + 1;
+    const optionValue = `${year}-${String(nextYear).slice(-2)}`;
+
+    const option = document.createElement('option');
+    option.value = optionValue;
+    option.textContent = optionValue;
+
+    // Select the current financial year by default
+    if (year === (currentYear - 1)) {
+      option.selected = true;
+    }
+
+    selectElement.appendChild(option);
+  }
+</script>
+
+
+
+<script>
+
+  function fetchAndCheckCompanyName() {
+    let companyName = $('#companyName').val(); // Get the company name input value
+    let csrfToken = $('[name=csrfmiddlewaretoken]').val(); // Get the CSRF token
+
+    $.ajax({
+      url: "{% url 'fetchGroupName' %}",
+      type: "POST",
+      data: {
+        'companyName': companyName,
+        'csrfmiddlewaretoken': csrfToken
+      },
+      success: function (response) {
+        if (response.status === 'success') {
+          // Update group name
+          $('#groupName').val(response.group_name);
+          $('#companyType').val(response.company_type);
+
+          var companyType = $('#companyType').val();
+          if (companyType === 'Pvt' || companyType === 'Public' || companyType === 'OPC') {
+            // For Pvt/Public/OPC: set Form 11, Form 8, and MGT-14 to "N/A" and disable them.
+            $('[name="statusForm11"]').val("N/A");
+            $('[name="statusForm8"]').val("N/A");
+            $('[name="statusMGT14"]').val("N/A");
+            // Set the remaining statuses to "Pending" and enable them.
+            $('[name="statusDPT3"]').val("Pending");
+            $('[name="statusAOC4"]').val("Pending");
+            $('[name="statusMGT7"]').val("Pending");
+            checkRequiredFieldsForStatus();
+          } else if (companyType === 'LLP') {
+            // For LLP: set DPT-3, MGT-14, AOC-4, and MGT-7 to "N/A" and disable them.
+            $('[name="statusDPT3"]').val("N/A");
+            $('[name="statusMGT14"]').val("N/A");
+            $('[name="statusAOC4"]').val("N/A");
+            $('[name="statusMGT7"]').val("N/A");
+            // Set Form 11 and Form 8 to "Pending" and enable them.
+            $('[name="statusForm11"]').val("Pending");
+            $('[name="statusForm8"]').val("Pending");
+            checkRequiredFieldsForStatus();
+          } else {
+            // For any other or unselected type, clear values and enable all fields.
+            $('[name="statusDPT3"], [name="statusMGT14"], [name="statusAOC4"], [name="statusMGT7"], [name="statusForm11"], [name="statusForm8"]')
+              .val("").prop("disabled", false);
+              checkRequiredFieldsForStatus();
+          }
+          // Clear message box
+          $('#messageBox').text('');
+        } else {
+          // Display error message
+          $('#groupName').val('');
+          $('#messageBox').text('Company name does not exist in the database!');
+          $('#messageBox').css('color', 'red');
+        }
+      },
+      error: function (xhr, status, error) {
+        console.error("Failed to fetch data: " + xhr.statusText);
+      }
+    });
+  }
+
+
+  function checkRequiredFieldsForStatus() {
+    // Helper function to update fields for a given prefix
+    function updateFieldGroup(statusSelector, prefix) {
+        var statusVal = $(statusSelector).val();
+        var fields = [
+            $('[name="' + prefix + 'No"]'),
+            $('[name="' + prefix + 'Date"]'),
+            $('[name="amt' + prefix + '"]')
+        ];
+        
+        if(statusVal === "Approved"){
+            // Enable fields and make them required.
+            fields.forEach(function(field) {
+                field.prop("disabled", false).prop("required", true);
+            });
+        } else if(statusVal === "N/A"){
+            // Clear, disable, and not required.
+            fields.forEach(function(field) {
+                field.val("").prop("disabled", true).prop("required", false);
+            });
+        } else if(statusVal === "Pending"){
+            // Enable fields but not required.
+            fields.forEach(function(field) {
+                field.prop("disabled", false).prop("required", false);
+            });
+        } else {
+            // For any other value, clear required and enable.
+            fields.forEach(function(field) {
+                field.prop("disabled", false).prop("required", false);
+            });
+        }
+    }
+
+    // For DPT-3
+    updateFieldGroup('[name="statusDPT3"]', "srnNoDPT3".replace("srnNo", ""));  // We can simplify using prefix "DPT3"
+    // Instead, let's just call updateFieldGroup with a prefix we define manually:
+    updateFieldGroup('[name="statusDPT3"]', "DPT3");
+    updateFieldGroup('[name="statusMGT14"]', "MGT14");
+    updateFieldGroup('[name="statusAOC4"]', "AOC4");
+    updateFieldGroup('[name="statusMGT7"]', "MGT7");
+    updateFieldGroup('[name="statusForm11"]', "Form11");
+    updateFieldGroup('[name="statusForm8"]', "Form8");
+    
+    // Note: The helper function constructs selectors as:
+    // For prefix "DPT3": It will look for fields:
+    //   - $('[name="DPT3No"]')
+    //   - $('[name="DPT3Date"]')
+    //   - $('[name="amtDPT3"]')
+    // 
+    // To match your current naming, update accordingly:
+    // Our current names are:
+    //   - srnNoDPT3, srnDateDPT3, amtDPT3
+    // Therefore, for DPT3, we need to manually target the names.
+    
+    // Alternatively, we can update the helper function for your naming convention:
+    
+    function updateFieldGroupCustom(statusSelector, srnNoName, srnDateName, amtName) {
+        var statusVal = $(statusSelector).val();
+        var srnNoField = $('[name="' + srnNoName + '"]');
+        var srnDateField = $('[name="' + srnDateName + '"]');
+        var amtField = $('[name="' + amtName + '"]');
+        
+        if(statusVal === "Approved"){
+            srnNoField.prop("disabled", false).prop("required", true);
+            srnDateField.prop("disabled", false).prop("required", true);
+            amtField.prop("disabled", false).prop("required", true);
+        } else if(statusVal === "N/A"){
+            srnNoField.val("").prop("disabled", true).prop("required", false);
+            srnDateField.val("").prop("disabled", true).prop("required", false);
+            amtField.val("").prop("disabled", true).prop("required", false);
+        } else if(statusVal === "Pending"){
+            srnNoField.prop("disabled", false).prop("required", false);
+            srnDateField.prop("disabled", false).prop("required", false);
+            amtField.prop("disabled", false).prop("required", false);
+        } else {
+            srnNoField.prop("disabled", false).prop("required", false);
+            srnDateField.prop("disabled", false).prop("required", false);
+            amtField.prop("disabled", false).prop("required", false);
+        }
+    }
+    
+    // Now use the custom helper function for each group:
+    updateFieldGroupCustom('[name="statusDPT3"]', "srnNoDPT3", "srnDateDPT3", "amtDPT3");
+    updateFieldGroupCustom('[name="statusMGT14"]', "srnNoMGT14", "srnDateMGT14", "amtMGT14");
+    updateFieldGroupCustom('[name="statusAOC4"]', "srnNoAOC4", "srnDateAOC4", "amtAOC4");
+    updateFieldGroupCustom('[name="statusMGT7"]', "srnNoMGT7", "srnDateMGT7", "amtMGT7");
+    updateFieldGroupCustom('[name="statusForm11"]', "srnNoForm11", "srnDateForm11", "amtForm11");
+    updateFieldGroupCustom('[name="statusForm8"]', "srnNoForm8", "srnDateForm8", "amtForm8");
+}
+
+// Bind the function to the change events on all status fields and run on page load.
+$(document).ready(function(){
+    $('[name="statusDPT3"], [name="statusMGT14"], [name="statusAOC4"], [name="statusMGT7"], [name="statusForm11"], [name="statusForm8"]').on("change", checkRequiredFieldsForStatus);
+    checkRequiredFieldsForStatus(); // Initialize on page load.
+});
+
+
+
+</script>
+<!--/ Bordered Table -->
+
+<script>
+  let autoCompleted = false;
+  let currentFocus = -1;
+  let preventAutoComplete = false;
+
+  function toggleDropdown() {
+    const dropdown = document.getElementsByClassName('drop-values');
+    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+  }
+
+  function showDropdown() {
+    const dropdown = document.getElementById('dropdown-values');
+    dropdown.style.display = 'block';
+  }
+
+  function selectValue(value) {
+    const input = document.getElementById('companyName');
+    input.value = value;
+    fetchAndCheckCompanyName()
+    closeDropdown();
+    filterFunction(); // Update dropdown values to show only the selected value
+    preventAutoComplete = true;
+  }
+
+  function filterFunction() {
+    const input = document.getElementById('companyName');
+    const filter = input.value.toLowerCase();
+    const dropdown = document.getElementById('dropdown-values');
+    const values = dropdown.getElementsByTagName('div');
+
+    let visibleCount = 0;
+    let lastVisibleValue = '';
+
+    for (let i = 0; i < values.length; i++) {
+      const txtValue = values[i].textContent || values[i].innerText;
+      if (txtValue.toLowerCase().indexOf(filter) > -1) {
+        values[i].style.display = "";
+        visibleCount++;
+        lastVisibleValue = txtValue;
+      } else {
+        values[i].style.display = "none";
+      }
+    }
+
+    if (visibleCount === 1 && filter !== '' && !preventAutoComplete) {
+      autoCompleted = true;
+      input.value = lastVisibleValue;
+    } else {
+      autoCompleted = false;
+    }
+
+    preventAutoComplete = false;
+
+    // Show all dropdown values if the input is empty
+    if (filter === '') {
+      for (let i = 0; i < values.length; i++) {
+        values[i].style.display = "";
+      }
+      dropdown.style.display = 'block';
+    } else {
+      // Hide the dropdown if no values are visible
+      dropdown.style.display = visibleCount > 0 ? 'block' : 'none';
+    }
+  }
+
+  function closeDropdown() {
+    const dropdown = document.getElementById('dropdown-values');
+    dropdown.style.display = 'none';
+  }
+
+  document.getElementById('companyName').addEventListener('keydown', function (event) {
+    const dropdown = document.getElementById('dropdown-values');
+    const values = dropdown.getElementsByTagName('div');
+
+    if (autoCompleted && event.key !== "Tab" && event.key !== "Shift" && event.key !== "Control" && event.key !== "Backspace") {
+      autoCompleted = false;
+    }
+
+    // Check if input is cleared and show all dropdown values
+    setTimeout(function () {
+      if (event.target.value === '') {
+        for (let i = 0; i < values.length; i++) {
+          values[i].style.display = "";
+        }
+      }
+    }, 0);
+
+    // Keyboard navigation
+    if (event.key === "ArrowDown") {
+      currentFocus++;
+      addActive(values);
+    } else if (event.key === "ArrowUp") {
+      currentFocus--;
+      addActive(values);
+    } else if (event.key === "Enter") {
+      event.preventDefault();
+      if (currentFocus > -1) {
+        if (values[currentFocus]) values[currentFocus].click();
+      }
+    } else if (event.key === "Backspace") {
+      preventAutoComplete = true;
+    }
+  });
+
+  function addActive(values) {
+    if (!values) return false;
+    removeActive(values);
+    if (currentFocus >= values.length) currentFocus = 0;
+    if (currentFocus < 0) currentFocus = values.length - 1;
+    values[currentFocus].classList.add("highlight");
+  }
+
+  function removeActive(values) {
+    for (let i = 0; i < values.length; i++) {
+      values[i].classList.remove("highlight");
+    }
+  }
+
+  // Close the dropdown if the user clicks outside of it
+  document.addEventListener('click', function (event) {
+    const dropdown = document.getElementById('dropdown-values');
+    const input = document.getElementById('companyName');
+    const arrow = document.querySelector('.dropdown-arrow');
+    if (!input.contains(event.target) && !arrow.contains(event.target)) {
+      dropdown.style.display = 'none';
+    }
+  });
+</script>
+
+{% endblock container %}
