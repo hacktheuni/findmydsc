@@ -141,7 +141,8 @@
                             <td>{{ pw.formID.formNo }}</td>
                             {% endif %}
                             <td>{{ pw.eventDate|date:"d-m-Y" }}</td>
-                            <td {% if pw.is_approved %}style="color: green;" {% elif pw.is_marked_for_resubmission %}style="color: red;" {% elif pw.is_pending_for_approval %}style="color: blue;" {% elif pw.is_rejected %}style="color: grey;" {% endif %}>{{pw.status}}</td>
+                            <td {% if pw.is_approved %}style="color: green;" {% elif pw.is_marked_for_resubmission %}style="color: red;" 
+                            {% elif pw.is_pending_for_approval %}style="color: blue;" {% elif pw.is_rejected %}style="color: grey;" {% endif %}>{{pw.status}}</td>
                             <td {% if pw.is_internal_expired %}style="color: red;" {% elif pw.is_internal_due_soon %}style="color: orange;" {% endif %}>{{ pw.internalDueDate|date:"d-m-Y" }}</td>
                             <td {% if pw.is_actual_expired %}style="color: red;" {% elif pw.is_actual_due_soon %}style="color: orange;" {% endif %}>{{ pw.actualDueDate|date:"d-m-Y" }}</td>
                             <td>{{ pw.remark }}</td>

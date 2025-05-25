@@ -84,7 +84,7 @@
         </div>
         <div class="mb-3 col-md-3">
           <label class="form-label">Event Date</label>
-          <input class="form-control" type="date" name="eventDate" value="{{form_data.eventDate|default:''}}"/>
+          <input class="form-control" type="date" name="eventDate" value="{{form_data.eventDate|date:'Y-m-d'|default:''}}"/>
         </div>
         <div class="mb-3 col-md-3">
           <label class="form-label">Internal Cut Off Time</label>

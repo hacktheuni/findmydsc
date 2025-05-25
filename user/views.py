@@ -263,6 +263,8 @@ def listPendingWork(request):
         work.is_pending_for_approval  = (work.status == "Pending For Approval")
         work.is_rejected              = (work.status == "Rejected")
 
+        if work.is_pending_for_approval:
+            work.is_pending_for_approval = True
     return render(request, 'pendingWork/listPendingWork.html', {
         'base': base,
         'user': user,
@@ -1725,6 +1727,7 @@ def updatePendingWork(request, pendingWorkID):
             'isArchived': pending_work.isArchived,
             'isPinned': pending_work.isPinned 
         }
+        print(form_data['status'])
         context['form_data'] = form_data
         return render(request, 'pendingWork/updatePendingWork.html', context)
 
