@@ -1113,13 +1113,14 @@ def addTrademark(request):
 
         try:
             group = query(user, UpdatedGroup).get(groupName=groupName)
-        except UpdatedCompany.DoesNotExist:
+        except UpdatedGroup.DoesNotExist:
             messages.error(request, "Group record not found.")
+            form_data['groupName'] = ''
             context['form_data'] = form_data
             return render(request, 'trademark/addTrademark.html', context)
 
         # Check required fields (optional fields for srnNo, srnDate, and amt are not required)
-        if not all([nameOfTrademark, nameOfApplicant, applicationNo, dateOfApp, status1, groupName]):
+        if not all([nameOfTrademark, nameOfApplicant, dateOfApp, status1, groupName, classNo]):
             messages.error(request, "Please fill all required fields.")
             context['form_data'] = form_data
             return render(request, 'trademark/addTrademark.html', context)

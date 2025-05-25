@@ -466,7 +466,7 @@ class HistoryTrademark(models.Model):
     nameOfApplicant = models.CharField(max_length=255)
     dateOfApp = models.DateField()
     status1 = models.CharField(max_length=50, default='')
-    status2 = models.CharField(max_length=50, default='')
+    status2 = models.CharField(max_length=50, default='', null=True, blank=True)
     hearingDate = models.DateField(null=True, blank=True)
     remark = models.CharField(max_length=100, default='')
     groupID = models.ForeignKey('UpdatedGroup', on_delete=models.CASCADE)

@@ -281,7 +281,7 @@
   const currentYear = new Date().getFullYear();
   const startYear = currentYear - 3;
   const totalYears = 8;
-  const selectValue = "{{ form_data.financialYear|default:'' }}";
+  const selectYearValue = "{{ form_data.financialYear|default:'' }}";
 
   const selectElement = document.getElementById('financialYear');
 
@@ -294,7 +294,7 @@
     option.value = optionValue;
     option.textContent = optionValue;
     // Select the current financial year by default
-    if (optionValue === selectValue) {
+    if (optionValue === selectYearValue) {
       option.selected = true;
     }
 
@@ -591,6 +591,20 @@
     const arrow = document.querySelector('.dropdown-arrow');
     if (!input.contains(event.target) && !arrow.contains(event.target)) {
       dropdown.style.display = 'none';
+    }
+
+    const drop = document.getElementById('drop-values');
+    const inputForm = document.getElementById('formNo');
+    const arrowForm = document.querySelector('.drop-arrow');
+    if (!inputForm.contains(event.target) && !arrowForm.contains(event.target)) {
+      drop.style.display = 'none';
+    }
+
+    const dropUser = document.getElementById('drop');
+    const inputUser = document.getElementById('user');
+    const arrowUser = document.querySelector('.dropArrow');
+    if (!inputUser.contains(event.target) && !arrowUser.contains(event.target)) {
+      dropUser.style.display = 'none';
     }
   });
 </script>

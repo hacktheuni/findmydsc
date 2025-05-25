@@ -66,12 +66,12 @@
         </div>
         <div class="mb-3 col-md-3">
           <label class="form-label">Date of Application</label>
-          <input class="form-control" type="date" name="dateOfApp" value="{{form_data.dateOfApp|date:'Y-m-d'|default:''}}" required/>
+          <input class="form-control" type="date" name="dateOfApp" value="{{form_data.dateOfApp|default:''}}" required/>
         </div>
         <div class="mb-3 col-md-3">
           <label class="form-label">Current Status 1</label>
           <select name="status1" class="form-select" id="status" required>
-            <option value="" disabled>Select Status</option>
+            <option value="" selected>Select Status</option>
             <option value="Application to be filed" {% if form_data.status1 == 'Application to be filed' %}selected{% endif %}>Application to be filed</option>
             <option value="Formalities Chk Pass" {% if form_data.status1 == 'Formalities Chk Pass' %}selected{% endif %}>Formalities Chk Pass</option>
             <option value="Marked for Exam" {% if form_data.status1 == 'Marked for Exam' %}selected{% endif %}>Marked for Exam</option>
@@ -88,7 +88,7 @@
         <div class="mb-3 col-md-3">
           <label class="form-label">Current Status 2</label>
           <select name="status2" class="form-select" id="status">
-            <option value="" disabled>Select Status</option>
+            <option value="" selected>Select Status</option>
             <option value="Reply Submitted" {% if form_data.status2 == 'Reply Submitted' %}selected{% endif %}>Reply Submitted</option>
             <option value="Hearing notice (Adjourned)" {% if form_data.status2 == 'Hearing notice (Adjourned)' %}selected{% endif %}>Hearing notice (Adjourned)</option>
             <option value="Ready for Show cause Hearing" {% if form_data.status2 == 'Ready for Show cause Hearing' %}selected{% endif %}>Ready for Show cause Hearing</option>

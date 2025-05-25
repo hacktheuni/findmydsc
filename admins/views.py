@@ -206,7 +206,7 @@ def updateUser(request, userID):
                 return render(request, 'user/updateUser.html', context)
 
             # Check if all fields are filled
-            if not userName or not userPhone or not userUsername or not userPassword:
+            if not userName or not userPhone or not userUsername:
                 messages.error(request, "All fields are required.")
                 return redirect(request.path)
 
@@ -221,10 +221,11 @@ def updateUser(request, userID):
                 return redirect(request.path)
 
             # 4. Password validation: minimum 8 characters, letters and numbers
-            if len(userPassword) < 8 or not re.search(r'[A-Za-z]', userPassword) or not re.search(r'\d', userPassword):
-                messages.error(request, "Password must be at least 8 characters long and contain both letters and numbers.")
-                return redirect(request.path)
-
+            if userPassword != '':
+                if len(userPassword) < 8 or not re.search(r'[A-Za-z]', userPassword) or not re.search(r'\d', userPassword):
+                    messages.error(request, "Password must be at least 8 characters long and contain both letters and numbers.")
+                    return redirect(request.path)
+            
             # Check if phone number already exists for another user (exclude current user)
             if UpdatedUser.objects.filter(userPhone=userPhone).exclude(userID=userID).exists():
                 messages.error(request, "Phone number already exists.")
@@ -239,7 +240,8 @@ def updateUser(request, userID):
             user.userName = userName
             user.userPhone = userPhone
             user.userUsername = userUsername
-            user.userPassword = make_password(userPassword)
+            if userPassword != '':
+                user.userPassword = make_password(userPassword)
             user.groupID = group_obj
             user.isClientUser = isClientUser
             user.canReadOnly = readOnly

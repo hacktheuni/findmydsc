@@ -55,7 +55,7 @@
         <div class="mb-3 col-md-6">
           <label class="form-label">User Name</label>
           <input class="form-control" type="text" name="userName" value="{{user.userName}}"
-            oninput="validateField(this)" id="name" placeholder="Dinesh Gehlot" autofocus />
+            oninput="validateField(this)" id="name" placeholder="Dinesh Gehlot" autofocus required />
           <span id="nameError" class="error-message"></span>
         </div>
         <div class="mb-3 col-md-6">
@@ -63,19 +63,19 @@
           <div class="input-group input-group-merge">
             <span class="input-group-text">IN (+91)</span>
             <input type="text" name="userPhone" id="phone" oninput="validateField(this)" value="{{user.userPhone}}" class="form-control"
-              placeholder="202 555 0111" />
+              placeholder="202 555 0111" required />
           </div>
           <span id="phoneError" class="error-message"></span>
         </div>
         <div class="mb-3 col-md-6">
           <label class="form-label">User ID</label>
           <input class="form-control" type="text" name="userUsername" value="{{user.userUsername}}"
-            placeholder="dinesh453" />
+            placeholder="dinesh453" required/>
         </div>
         <div class="mb-3 col-md-6 form-password-toggle">
           <label class="form-label">Password</label>
           <div class="input-group input-group-merge">
-            <input type="password" class="form-control" name="userPassword" value="{{user.userPassword}}"
+            <input type="password" class="form-control" name="userPassword" value=""
               oninput="validateField(this)" id="password"
               placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
               aria-describedby="password" />
