@@ -115,7 +115,7 @@
         <div class="mb-3 col-md-3">
           <label class="form-label">Status</label>
           <select name="status" class="form-select" id="status" required>
-            <option value="" disabled selected>Select Status</option>
+            <option value="" selected>Select Status</option>
             <option value="Doc. Pending From Client Side" {% if form_data.status == 'Doc. Pending From Client Side' %}selected{% endif %}>Doc. Pending From Client Side</option>
             <option value="Mailed For Sign" {% if form_data.status == 'Mailed For Sign' %}selected{% endif %}>Mailed For Sign</option>
             <option value="Signed Doc. Received" {% if form_data.status == 'Signed Doc. Received' %}selected{% endif %}>Signed Doc. Received</option>
@@ -145,7 +145,7 @@
         <div class="mb-3 col-md-2">
           <label class="form-label">Billing</label>
           <select name="billing" class="form-select" id="billing" required>
-            <option value="" disabled selected>Billing Status</option>
+            <option value="" selected>Billing Status</option>
             <option value="Pending" {% if form_data.status == 'Pending' %}selected{% endif %}>Pending</option>
             <option value="Generated" {% if form_data.status == 'Generated' %}selected{% endif %}>Generated</option>
             <option value="Mailed" {% if form_data.status == 'Mailed' %}selected{% endif %}>Mailed</option>

@@ -36,7 +36,8 @@
                     {% if show_archived %}
                     <a href="{% url 'listTrademark' %}" class="menu-link btn btn-outline-primary me-4">Show Active</a>
                     {% else %}
-                    <a href="{% url 'listTrademark' %}?archived=true" class="menu-link btn btn-outline-primary me-4">Show
+                    <a href="{% url 'listTrademark' %}?archived=true"
+                        class="menu-link btn btn-outline-primary me-4">Show
                         Archived</a>
                     {% endif %}
                     {% if not user.isClientUser or user.isClientUser and user.canReadWrite %}
@@ -53,13 +54,15 @@
                         <tr>
                             <th onclick="sortTable(0)" style="width: 2rem;min-width: 2rem;">SRN</th>
                             <th onclick="sortTable(1)" style="width: 20rem;min-width: 9rem;">Name of Trademark</th>
-                            <th onclick="sortTable(2)" style="width: 30rem;">application No.</th>
-                            <th onclick="sortTable(3)" style="width: 6rem;min-width: 6rem;">Status 1</th>
-                            <th onclick="sortTable(4)" style="min-width: 8rem;width: 8rem;">Status 2</th>
+                            <th onclick="sortTable(2)" style="width: 30rem;">Application No.</th>
+                            <th onclick="sortTable(3)" style="width: 6rem;min-width: 6rem;">Current Status 1</th>
+                            <th onclick="sortTable(4)" style="min-width: 8rem;width: 8rem;">Current Status 2</th>
+                            <th onclick="sortTable(7)" style="width: 7rem;min-width: 7rem;">Reply Due Date</th>
                             <th onclick="sortTable(5)" style="min-width: 10rem;width: 10rem;">Hearing Date</th>
-                            <th onclick="sortTable(6)" style="width: 7rem;min-width: 7rem;">Reference</th>
-                            <th onclick="sortTable(7)" style="width: 7rem;min-width: 7rem;">Last Date</th>
-                            <th onclick="sortTable(8)" style="width: 7rem;min-width: 7rem;">Expiry Date</th>
+                            {% if not user.isClientUser %}
+                            <th onclick="sortTable(6)" style="width: 7rem;min-width: 7rem;">Group</th>
+                            {% endif %}
+                            <th onclick="sortTable(8)" style="width: 7rem;min-width: 7rem;">Renewal Date</th>
                             {% if not user.isClientUser or user.isClientUser and user.canReadWrite %}
                             <th style="width: 4rem;">Action</th>
                             <th style="width: 4rem;">Select</th>
@@ -79,36 +82,38 @@
                                     <option value="Application to be filed">Application to be filed</option>
                                     <option value="Formalities Chk Pass">Formalities Chk Pass</option>
                                     <option value="Marked for Exam">Marked for Exam</option>
-                                    <option value="Accepted & Advertised">Accepted & Advertised</option>
-                                    <option value="Objected ">Objected</option>
-                                    <option value="Opposed">Opposed</option>
-                                    <option value="Ready for show cause hearing">Ready for show cause hearing</option>
-                                    <option value="Rectification filed">Rectification filed</option>
                                     <option value="Send To Vienna Condification">Send To Vienna Condification</option>
-                                    <option value="Registered">Registered</option>
+                                    <option value="Objected">Objected</option>
+                                    <option value="Accepted">Accepted</option>
+                                    <option value="Opposed">Opposed</option>
                                     <option value="Abandoned">Abandoned</option>
+                                    <option value="Registered">Registered</option>
+                                    <option value="Rectification filed">Rectification filed</option>
                                 </select>
                             </td>
                             <td>
                                 <select class="form-control" style="padding: .4rem 1rem;"
                                     onchange="filterSearchOthers()" data-col="4">
                                     <option value="">All</option>
+                                    <option value="Awaiting Reply to Exam Report">Awaiting Reply to Exam Report</option>
                                     <option value="Reply Submitted">Reply Submitted</option>
+                                    <option value="Ready for Show cause Hearing">Readybfor Show cause Hearing</option>
+                                    <option value="Hearing notice (Show Cause)">Hearing notice (Show Cause)</option>
                                     <option value="Hearing notice (Adjourned)">Hearing notice (Adjourned)</option>
-                                    <option value="Ready for Show cause Hearing">Ready for Show cause Hearing</option>
-                                    <option value="Awaiting Reply to Examination Report">Awaiting Reply to Examination
-                                        Report</option>
-                                    <option value="Rule 45 Received / Sent ">Rule 45 Received / Sent</option>
-                                    <option value="Rule 47 Received / Sent">Rule 47 Received / Sent</option>
-                                    <option value="Counter Statement Received / Filed">Counter Statement Received /
-                                        Filed</option>
+                                    <option value="TM-O Filed">TM-O Filed</option>
+                                    <option value="Opposition Notice Received / Served">Opposition Notice Received / Served</option>
+                                    <option value="Rule 45 Received / Served">Rule 45 Received / Served</option>
+                                    <option value="Counter Stmt Received / Served">Counter Stmt Received / Served</option>
+                                    <option value="Rule 46 Received / Served">Rule 46 Received / Served</option>
+                                    <option value="Assignment Pending">Assignment Pending</option>
                                 </select>
                             </td>
                             <td><input class="form-control" placeholder="Search..." type="search"
                                     onkeyup="filterSearchOthers()" data-col="5" /></td>
-
+                            {% if not user.isClientUser %}
                             <td><input class="form-control" placeholder="Search..." type="search"
                                     onkeyup="filterSearchOthers()" data-col="6" /></td>
+                            {% endif %}
                             <td><input class="form-control" placeholder="Search..." type="search"
                                     onkeyup="filterSearchOthers()" data-col="7" /></td>
                             <td><input class="form-control" placeholder="Search..." type="search"
@@ -135,11 +140,14 @@
                             <td>{{ tm.nameOfTrademark }}</td>
                             {% endif %}
                             <td>{{ tm.applicationNo }}</td>
-                            <td>{{ tm.status1 }}</td>
+                            <td {% if tm.is_objected %}style="color: orange;" {% elif tm.is_accepted %}style="color: blue;" 
+                            {% elif tm.is_registered %}style="color: green;"{% elif tm.is_abandoned %}style="color: grey;"{% elif tm.is_opposed %}style="color: red;" {% endif %}>{{ tm.status1 }}</td>
                             <td>{{ tm.status2 }}</td>
-                            <td>{{ tm.hearingDate|date:"d-m-Y" }}</td>
-                            <td>{{ tm.groupID.groupName }}</td>
                             <td>{{ tm.lastDate|date:"d-m-Y" }}</td>
+                            <td>{{ tm.hearingDate|date:"d-m-Y" }}</td>
+                            {% if not user.isClientUser %}
+                            <td>{{ tm.groupID.groupName }}</td>
+                            {% endif %}
                             <td>{{ tm.expiryDate|date:"d-m-Y" }}</td>
                             {% if not user.isClientUser or user.isClientUser and user.canReadWrite %}
                             <td style="text-align: center;">

@@ -59,33 +59,37 @@
                 <div class="text-dark">Hello, {{request.session.userName}}</div>
               </div>
             </li>
+            {% if user.accessToPendingWork %}
             <li class="menu-item {% block pendingWorkActive %} {% endblock pendingWorkActive %}">
               <a href="{% url 'listPendingWork' %}" class="menu-link">
                 <i class="menu-icon tf-icons bx bxs-briefcase-alt-2"></i>
                 <div>Pending Work</div>
               </a>
             </li>
+            {% endif %}
+            {% if user.accessToAnnual %}
             <li class="menu-item {% block annualActive %} {% endblock annualActive %}">
               <a href="{% url 'listAnnual' %}" class="menu-link">
                 <i class="menu-icon tf-icons bx bxs-spreadsheet"></i>
                 <div>Annual Filing</div>
               </a>
             </li>
+            {% endif %}
+            {% if user.accessToTrademark %}
             <li class="menu-item {% block trademarkActive %} {% endblock trademarkActive %}">
               <a href="{% url 'listTrademark' %}" class="menu-link">
                 <i class='menu-icon tf-icons bx  bxs-registered'></i>
                 <div>Trademark</div>
               </a>
             </li>
+            {% endif %}
             <li class="menu-item {% block passActive %} {% endblock passActive %} ">
               <a href="{% url 'updatePassword' %}" class="menu-link">
                 <i class="menu-icon tf-icons bx bxs-key"></i>
                 <div>Change Password</div>
               </a>
             </li>
-          </ul>
-          <ul style="position: fixed; bottom: 0px;">
-            <li class="menu-item">
+            <li class="menu-item" style="position: fixed; bottom: 0px;">
               <a href="{% url 'logOut' %}" class="menu-link">
                 <div data-i18n="Container"><button type="button" class="btn btn-outline-primary">Log Out</button></div>
               </a>

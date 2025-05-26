@@ -57,7 +57,7 @@
         <div class="mb-3 col-md-6">
           <label class="form-label">Type</label>
           <select name="companyType" class="form-select" required>
-            <option value="" disabled selected>Select Type</option>
+            <option value="" selected>Select Type</option>
             <option value="Pvt" {% if form_data.companyType == 'Pvt' %}selected{% endif %}>Pvt</option>
             <option value="Public" {% if form_data.companyType == 'Public' %}selected{% endif %}>Public</option>
             <option value="OPC" {% if form_data.companyType == 'OPC' %}selected{% endif %}>OPC</option>

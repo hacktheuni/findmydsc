@@ -57,7 +57,9 @@
                         <tr>
                             <th onclick="sortTable(0)" style="width: 2rem;min-width: 2rem;">SRN</th>
                             <th onclick="sortTable(1)" style="width: 20rem;min-width: 9rem;">Company Name</th>
+                            {% if not user.isClientUser %}
                             <th onclick="sortTable(2)" style="width: 30rem;">Group Name</th>
+                            {% endif %}
                             <th onclick="sortTable(3)" style="width: 20rem;display: none;">Financial Year</th>
                             <th onclick="sortTable(4)" style="width: 5rem;">DPT-3</th>
                             <th onclick="sortTable(5)" style="width: 6rem;">MGT-14</th>
@@ -75,8 +77,10 @@
                                     onkeyup="filterSearchOthers()" data-col="0" /></td>
                             <td><input class="form-control" placeholder="Search..." type="search"
                                     onkeyup="filterSearchOthers()" data-col="1" /></td>
+                            {% if not user.isClientUser %}
                             <td><input class="form-control" placeholder="Search..." type="search"
                                     onkeyup="filterSearchOthers()" data-col="2" /></td>
+                            {% endif %}
                             <td style="display: none;"><input class="form-control" placeholder="Search..." type="search"
                                     onkeyup="filterSearchOthers()" data-col="3" /></td>
                             <td>
@@ -156,7 +160,9 @@
                             {% else %}
                             <td>{{ annualFiling.companyID.companyName }}</td>
                             {% endif %}
+                            {% if not user.isClientUser %}
                             <td>{{ annualFiling.companyID.groupID.groupName }}</td>
+                            {% endif %}
                             <td style="display: none;">{{ annualFiling.financialYear }}</td>
                             <td>{{ annualFiling.statusDPT3 }}</td>
                             <td>{{ annualFiling.statusMGT14 }}</td>

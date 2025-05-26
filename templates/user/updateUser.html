@@ -95,13 +95,25 @@
             {% endfor %}
           </div>
         </div>
+        <div class="mb-3 col-md-2">
+          <label class="form-label">Pending Work</label>
+          <input class="form-check-input form-control" name="accessToPendingWork" {% if user.accessToPendingWork %}checked{% endif %} type="checkbox" value="True" />  
+        </div>
+        <div class="mb-3 col-md-2">
+          <label class="form-label">Annual Filing</label>
+          <input class="form-check-input form-control" name="accessToAnnual" {% if user.accessToAnnual %}checked{% endif %} type="checkbox" value="True" />  
+        </div>
+        <div class="mb-3 col-md-2">
+          <label class="form-label">Trademark</label>
+          <input class="form-check-input form-control" name="accessToTrademark" {% if user.accessToTrademark %}checked{% endif %} type="checkbox" value="True" />  
+        </div>
         <div class="mb-3 col-md-1">
           <label class="form-label">Read Only</label>
-          <input class="form-check-input form-control" name="perm" type="radio" {% if readOnly %}checked{% endif %} id="readOnly" value="readOnly" />  
+          <input class="form-check-input form-control" name="perm" type="radio" {% if user.canReadOnly %}checked{% endif %} id="readOnly" value="readOnly" />  
         </div>
         <div class="mb-3 col-md-2">
           <label class="form-label">Read & Write</label>
-          <input class="form-check-input form-control" name="perm" type="radio" {% if readWrite %}checked{% endif %} id="readWrite" value="readWrite"/>
+          <input class="form-check-input form-control" name="perm" type="radio" {% if user.canReadWrite %}checked{% endif %} id="readWrite" value="readWrite"/>
         </div>
         <div class="mt-2">
           <button type="submit" onclick="handleFormSubmit(event)" class="btn btn-primary me-2">Save</button>

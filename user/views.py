@@ -81,16 +81,34 @@ def allow_only_client_users(view_func):
                 if not user.isClientUser:
                     return view_func(request, *args, **kwargs)
 
-                if user.canReadOnly:
-                    # If user is a client user → allow access only to selected views
-                    allowed_views = [
-                        'listPendingWork', 'listAnnual', 'listTrademark', 'updatePassword'  # Add more allowed view names here
+                allowed_views = [
+                         'updatePassword'  # Add more allowed view names here
                     ]
+                if user.canReadOnly:
+                    if user.accessToPendingWork:
+                        allowed_views.append('listPendingWork')
+                    if user.accessToAnnual:
+                        allowed_views.append('listAnnual')
+                    if user.accessToTrademark:
+                        allowed_views.append('listTrademark')
+                
                 elif user.canReadWrite:
                     # If user is a client user with read/write access → allow access to all views
-                    allowed_views = [
-                        'listPendingWork', 'addPendingWork', 'updatePendingWork', 'deletePendingWork', 'listAnnual', 'addAnnual', 'updateAnnual', 'deleteAnnual', 'listTrademark', 'addTrademark', 'updateTrademark', 'deleteTrademark', 'updatePassword'
-                    ]
+                    if user.accessToPendingWork:
+                        add_views = [
+                            'listPendingWork', 'addPendingWork', 'updatePendingWork', 'deletePendingWork'
+                        ]
+                        allowed_views.extend(add_views)
+                    if user.accessToAnnual:
+                        add_views = [
+                            'listAnnual', 'addAnnual', 'updateAnnual', 'deleteAnnual'
+                        ]
+                        allowed_views.extend(add_views)
+                    if user.accessToTrademark:
+                        add_views = [
+                            'listTrademark', 'addTrademark', 'updateTrademark', 'deleteTrademark'
+                        ]
+                        allowed_views.extend(add_views)
                 else:
                     # If user has no specific permissions, redirect to a default page
                     messages.error(request, "Access denied: You are not allowed to view this page.")
@@ -263,8 +281,6 @@ def listPendingWork(request):
         work.is_pending_for_approval  = (work.status == "Pending For Approval")
         work.is_rejected              = (work.status == "Rejected")
 
-        if work.is_pending_for_approval:
-            work.is_pending_for_approval = True
     return render(request, 'pendingWork/listPendingWork.html', {
         'base': base,
         'user': user,
@@ -317,7 +333,14 @@ def listTrademark(request):
     if user.groupID:
         qs = qs.filter(groupID=user.groupID)
 
-    trademark = qs.order_by('-modifiedDate')
+    trademark = qs.order_by('-modifiedDate') 
+
+    for tm in trademark:
+        tm.is_objected = (tm.status1 == "Objected")
+        tm.is_accepted = (tm.status1 == "Accepted")  
+        tm.is_registered = (tm.status1 == "Registered")
+        tm.is_abandoned = (tm.status1 == "Abandoned")
+        tm.is_opposed = (tm.status1 == "Opposed")
 
     return render(request, 'trademark/listTrademark.html', {
         'base': base,
@@ -1064,7 +1087,7 @@ def addAnnual(request):
             messages.success(request, "Annual Filing added successfully!")
             return HttpResponseRedirect(reverse('listAnnual'))
         except Exception as e:
-            messages.error(request, f"Error saving Annual Filing: {e}")
+            messages.error(request, f"Error saving Annual Filing")
             context['form_data'] = form_data
             return render(request, 'annualFiling/addAnnual.html', context)
     return render(request, 'annualFiling/addAnnual.html', context)
@@ -1097,12 +1120,14 @@ def addTrademark(request):
         lastDate           = request.POST.get('lastDate')
         expiryDate           = request.POST.get('expiryDate')
         fees              = request.POST.get('fees', '')
+        feesStatus        = request.POST.get('feesStatus')
         isArchived = 'isArchived' in request.POST
 
         hearingDate = parse_date(hearingDate)
         oppDate = parse_date(oppDate)
         lastDate = parse_date(lastDate)
         expiryDate = parse_date(expiryDate)
+        dateOfApp = parse_date(dateOfApp)
         fees = parse_amount(fees)
 
         form_data = request.POST.copy()
@@ -1112,7 +1137,18 @@ def addTrademark(request):
         form_data['expiryDate'] = expiryDate
         form_data['dateOfApp'] = dateOfApp
 
+        required_fields = [nameOfTrademark, nameOfApplicant,  status1, groupName]
+        if status1 != 'Application to be filed':
+            required_fields.append(applicationNo)
+        if status1 == 'Registered':
+            required_fields.append(expiryDate)
 
+        # Check required fields (optional fields for srnNo, srnDate, and amt are not required)
+        if not all(required_fields):
+            messages.error(request, "Please fill all required fields")
+            context['form_data'] = form_data
+            return render(request, 'trademark/addTrademark.html', context)
+        
         try:
             group = query(user, UpdatedGroup).get(groupName=groupName)
         except UpdatedGroup.DoesNotExist:
@@ -1121,9 +1157,15 @@ def addTrademark(request):
             context['form_data'] = form_data
             return render(request, 'trademark/addTrademark.html', context)
 
-        # Check required fields (optional fields for srnNo, srnDate, and amt are not required)
-        if not all([nameOfTrademark, nameOfApplicant, dateOfApp, status1, groupName, classNo]):
-            messages.error(request, "Please fill all required fields.")
+        if applicationNo:
+            if query(user, Trademark).filter(applicationNo=applicationNo).exists():
+                messages.error(request, "Application No. already exists.")
+                form_data['applicationNo'] = ''
+                context['form_data'] = form_data
+                return render(request, 'trademark/addTrademark.html', context)
+        if classNo and (not classNo.isdigit() or not (1 <= int(classNo) <= 45)):
+            messages.error(request, "Class No. must be a number between 1 and 45.")
+            form_data['classNo'] = ''
             context['form_data'] = form_data
             return render(request, 'trademark/addTrademark.html', context)
         
@@ -1152,6 +1194,7 @@ def addTrademark(request):
                 lastDate=lastDate,
                 expiryDate=expiryDate,
                 fees=fees,
+                feesStatus=feesStatus,
                 isArchived=isArchived,
                 modifiedBy=user,
                 indexSRN=next_index
@@ -1176,6 +1219,7 @@ def addTrademark(request):
                 lastDate=trademark.lastDate,
                 expiryDate=trademark.expiryDate,
                 fees=trademark.fees,
+                feesStatus=trademark.feesStatus,
                 isArchived=trademark.isArchived,
                 modifiedBy=user,
                 indexSRN=trademark.indexSRN,
@@ -1186,7 +1230,7 @@ def addTrademark(request):
             messages.success(request, "Trademark added successfully.")
             return HttpResponseRedirect(reverse('listTrademark'))
         except Exception as e:
-            messages.error(request, f"Error saving Trademark: {e}")
+            messages.error(request, f"Error saving Trademark.")
             context['form_data'] = form_data
             return render(request, 'trademark/addTrademark.html', context)
     
@@ -1699,7 +1743,7 @@ def updatePendingWork(request, pendingWorkID):
             messages.success(request, "Pending work updated successfully.")
             return redirect(request.path)
         except Exception as e:
-            messages.error(request, f"Error updating pending work: {e}")
+            messages.error(request, f"Error updating pending work")
             context['form_data'] = form_data
             return render(request, 'pendingWork/updatePendingWork.html', context)
     
@@ -1914,7 +1958,7 @@ def updateAnnual(request, annualFilingID):
             messages.success(request, "Annual Filing updated successfully!")
             return redirect(request.path)
         except Exception as e:
-            messages.error(request, f"Error updating Annual Filing: {e}")
+            messages.error(request, f"Error updating Annual Filing")
             context['form_data'] = request.POST
             return render(request, 'annualFiling/updateAnnual.html', context)
     
@@ -1999,6 +2043,7 @@ def updateTrademark(request, trademarkID):
         lastDate           = request.POST.get('lastDate')
         expiryDate           = request.POST.get('expiryDate')
         fees              = request.POST.get('fees', '')
+        feesStatus        = request.POST.get('feesStatus')
         isArchived = 'isArchived' in request.POST
 
         hearingDate = parse_date(hearingDate)
@@ -2015,20 +2060,36 @@ def updateTrademark(request, trademarkID):
         form_data['expiryDate'] = expiryDate
         form_data['dateOfApp'] = dateOfApp
 
+        required_fields = [nameOfTrademark, nameOfApplicant,  status1, groupName]
+        if status1 != 'Application to be filed':
+            required_fields.append(applicationNo)
+        if status1 == 'Registered':
+            required_fields.append(expiryDate)
+
         # Check required fields (optional fields for srnNo, srnDate, and amt are not required)
-        if not all([nameOfTrademark, nameOfApplicant, applicationNo, dateOfApp, status1, groupName]):
-            messages.error(request, "Please fill all required fields.")
+        if not all(required_fields):
+            messages.error(request, "Please fill all required fields")
             context['form_data'] = form_data
-            return render(request, 'trademark/addTrademark.html', context)
+            return render(request, 'trademark/updateTrademark.html', context)
 
         try:
             # Look up the company by companyName and current sub-admin.
             group = query(user, UpdatedGroup).get(groupName=groupName)
-            groupName = group.groupName
-            form_data['groupName'] = groupName
-        except UpdatedCompany.DoesNotExist:
+        except UpdatedGroup.DoesNotExist:
             messages.error(request, "Group record not found.")
             form_data['groupName'] = trademark.groupID.groupName
+            context['form_data'] = form_data
+            return render(request, 'trademark/updateTrademark.html', context)
+        
+        if applicationNo:
+            if query(user, Trademark).filter(applicationNo=applicationNo).exclude(trademarkID=trademarkID).exists():
+                messages.error(request, "Application No. already exists.")
+                form_data['applicationNo'] = ''
+                context['form_data'] = form_data
+                return render(request, 'trademark/updateTrademark.html', context)
+        if classNo and (not classNo.isdigit() or not (1 <= int(classNo) <= 45)):
+            messages.error(request, "Class No. must be a number between 1 and 45.")
+            form_data['classNo'] = ''
             context['form_data'] = form_data
             return render(request, 'trademark/updateTrademark.html', context)
         
@@ -2047,6 +2108,7 @@ def updateTrademark(request, trademarkID):
             trademark.lastDate=lastDate
             trademark.expiryDate=expiryDate
             trademark.fees=fees
+            trademark.feesStatus=feesStatus
             trademark.isArchived=isArchived
             trademark.modifiedBy=user
         
@@ -2069,6 +2131,7 @@ def updateTrademark(request, trademarkID):
                 lastDate=trademark.lastDate,
                 expiryDate=trademark.expiryDate,
                 fees=trademark.fees,
+                feesStatus=trademark.feesStatus,
                 isArchived=trademark.isArchived,
                 modifiedBy=user,
                 indexSRN=trademark.indexSRN,
@@ -2078,7 +2141,7 @@ def updateTrademark(request, trademarkID):
             messages.success(request, "Trademark updated successfully.")
             return redirect(request.path)
         except Exception as e:
-            messages.error(request, f"Error updating Trademark: {e}")
+            messages.error(request, f"Error updating Trademark")
             context['form_data'] = form_data
             return render(request, 'trademark/updateTrademark.html', context)
     
@@ -2100,6 +2163,7 @@ def updateTrademark(request, trademarkID):
             'lastDate': trademark.lastDate,
             'expiryDate': trademark.expiryDate,
             'fees': trademark.fees,
+            'feesStatus': trademark.feesStatus,
             'isArchived': trademark.isArchived,
         }
         context['form_data'] = form_data
@@ -2374,7 +2438,9 @@ def updatePassword(request):
 
     context = {
         'base': base,
-        'subAdmin': subAdmin
+        'subAdmin': subAdmin,
+        'user': user,
+        'superAdmin': superAdmin,
     }
     return render(request, 'password/updatePassword.html', context)
 

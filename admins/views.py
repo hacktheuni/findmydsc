@@ -69,6 +69,10 @@ def addUser(request):
             userPassword = request.POST.get('userPassword')
             groupName = request.POST.get('groupName')
             perm = request.POST.get('perm')
+            accessToPendingWork = 'accessToPendingWork' in request.POST
+            accessToAnnual = 'accessToAnnual' in request.POST
+            accessToTrademark = 'accessToTrademark' in request.POST
+
             readOnly = False
             readWrite = False
             isClientUser = False
@@ -133,7 +137,10 @@ def addUser(request):
                 groupID=group_obj,
                 isClientUser=isClientUser,
                 canReadOnly=readOnly,
-                canReadWrite=readWrite
+                canReadWrite=readWrite,
+                accessToPendingWork=accessToPendingWork,
+                accessToAnnual=accessToAnnual,
+                accessToTrademark=accessToTrademark,
             )
             new_user.save()
 
@@ -149,7 +156,10 @@ def addUser(request):
                 groupID=new_user.groupID,
                 isClientUser=user.isClientUser,
                 canReadOnly=user.canReadOnly,
-                canReadWrite=user.canReadWrite
+                canReadWrite=user.canReadWrite,
+                accessToPendingWork=user.accessToPendingWork,
+                accessToAnnual=user.accessToAnnual,
+                accessToTrademark=user.accessToTrademark
             )
             userHistory.save()
 
@@ -178,9 +188,7 @@ def updateUser(request, userID):
             'user': user,
             'userHistory': userHistory,
             'subAdmin': subAdmin,
-            'groups': groups,
-            'readOnly': user.canReadOnly,
-            'readWrite': user.canReadWrite,
+            'groups': groups
         }
 
         if request.method == 'POST':
@@ -190,6 +198,10 @@ def updateUser(request, userID):
             userPassword = request.POST.get('userPassword')
             groupName = request.POST.get('groupName')
             perm = request.POST.get('perm')
+            accessToPendingWork = 'accessToPendingWork' in request.POST
+            accessToAnnual = 'accessToAnnual' in request.POST
+            accessToTrademark = 'accessToTrademark' in request.POST
+
             readOnly = False
             readWrite = False
             isClientUser = False
@@ -246,6 +258,9 @@ def updateUser(request, userID):
             user.isClientUser = isClientUser
             user.canReadOnly = readOnly
             user.canReadWrite = readWrite
+            user.accessToPendingWork = accessToPendingWork
+            user.accessToAnnual = accessToAnnual
+            user.accessToTrademark = accessToTrademark
 
             user.save()
 
@@ -261,7 +276,10 @@ def updateUser(request, userID):
                 groupID=user.groupID,
                 isClientUser=user.isClientUser,
                 canReadOnly=user.canReadOnly,
-                canReadWrite=user.canReadWrite
+                canReadWrite=user.canReadWrite,
+                accessToPendingWork=user.accessToPendingWork,
+                accessToAnnual=user.accessToAnnual,
+                accessToTrademark=user.accessToTrademark
             )
             userHistory.save()
 

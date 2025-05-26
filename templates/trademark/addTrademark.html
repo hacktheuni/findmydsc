@@ -48,66 +48,16 @@
     <form action="{% url 'addTrademark' %}" method="POST">
       {% csrf_token %}
       <div class="row">
-        <div class="mb-3 col-md-6">
+        <div class="mb-3 col-4">
           <label class="form-label">Name of Trademark</label>
           <input class="form-control" type="text" name="nameOfTrademark" value="{{form_data.nameOfTrademark|default:''}}" required />
         </div>
-        <div class="mb-3 col-md-3">
-          <label class="form-label">application No.</label>
-          <input class="form-control" type="text" name="applicationNo" value="{{form_data.applicationNo|default:''}}" />
-        </div>
-        <div class="mb-3 col-md-3">
-          <label class="form-label">Class</label>
-          <input class="form-control" type="text" name="classNo" value="{{form_data.classNo|default:''}}" required/>
-        </div>
-        <div class="mb-3 col-md-6">
+        <div class="mb-3 col-4">
           <label class="form-label">Name of Applicant</label>
           <input class="form-control" type="text" name="nameOfApplicant" value="{{form_data.nameOfApplicant|default:''}}" required />
         </div>
-        <div class="mb-3 col-md-3">
-          <label class="form-label">Date of Application</label>
-          <input class="form-control" type="date" name="dateOfApp" value="{{form_data.dateOfApp|default:''}}" required/>
-        </div>
-        <div class="mb-3 col-md-3">
-          <label class="form-label">Current Status 1</label>
-          <select name="status1" class="form-select" id="status" required>
-            <option value="" selected>Select Status</option>
-            <option value="Application to be filed" {% if form_data.status1 == 'Application to be filed' %}selected{% endif %}>Application to be filed</option>
-            <option value="Formalities Chk Pass" {% if form_data.status1 == 'Formalities Chk Pass' %}selected{% endif %}>Formalities Chk Pass</option>
-            <option value="Marked for Exam" {% if form_data.status1 == 'Marked for Exam' %}selected{% endif %}>Marked for Exam</option>
-            <option value="Accepted & Advertised" {% if form_data.status1 == 'Accepted & Advertised' %}selected{% endif %}>Accepted & Advertised</option>
-            <option value="Objected " {% if form_data.status1 == 'Objected' %}selected{% endif %}>Objected</option>
-            <option value="Opposed" {% if form_data.status1 == 'Opposed' %}selected{% endif %}>Opposed</option>
-            <option value="Ready for show cause hearing" {% if form_data.status1 == 'Ready for show cause hearing' %}selected{% endif %}>Ready for show cause hearing</option>
-            <option value="Rectification filed" {% if form_data.status1 == 'Rectification filed' %}selected{% endif %}>Rectification filed</option>
-            <option value="Send To Vienna Condification" {% if form_data.status1 == 'Send To Vienna Condification' %}selected{% endif %}>Send To Vienna Condification</option>
-            <option value="Registered" {% if form_data.status1 == 'Registered' %}selected{% endif %}>Registered</option>
-            <option value="Abandoned" {% if form_data.status1 == 'Abandoned' %}selected{% endif %}>Abandoned</option>
-          </select>
-        </div>
-        <div class="mb-3 col-md-3">
-          <label class="form-label">Current Status 2</label>
-          <select name="status2" class="form-select" id="status">
-            <option value="" selected>Select Status</option>
-            <option value="Reply Submitted" {% if form_data.status2 == 'Reply Submitted' %}selected{% endif %}>Reply Submitted</option>
-            <option value="Hearing notice (Adjourned)" {% if form_data.status2 == 'Hearing notice (Adjourned)' %}selected{% endif %}>Hearing notice (Adjourned)</option>
-            <option value="Ready for Show cause Hearing" {% if form_data.status2 == 'Ready for Show cause Hearing' %}selected{% endif %}>Ready for Show cause Hearing</option>
-            <option value="Awaiting Reply to Examination Report" {% if form_data.status2 == 'Awaiting Reply to Examination Report' %}selected{% endif %}>Awaiting Reply to Examination Report</option>
-            <option value="Rule 45 Received / Sent " {% if form_data.status2 == 'Rule 45 Received / Sent' %}selected{% endif %}>Rule 45 Received / Sent</option>
-            <option value="Rule 47 Received / Sent" {% if form_data.status2 == 'Rule 47 Received / Sent' %}selected{% endif %}>Rule 47 Received / Sent</option>
-            <option value="Counter Statement Received / Filed" {% if form_data.status2 == 'Counter Statement Received / Filed' %}selected{% endif %}>Counter Statement Received / Filed</option>
-          </select>
-        </div>
-        <div class="mb-3 col-md-3">
-          <label class="form-label">Hearing Date</label>
-          <input class="form-control" type="date" name="hearingDate" value="{{form_data.hearingDate|date:'Y-m-d'|default:''}}"/>
-        </div>
-        <div class="mb-3 col-md-3">
-          <label class="form-label">Remark</label>
-          <input class="form-control" type="text" name="remark" value="{{form_data.remark|default:''}}" />
-        </div>
-        <div class="mb-3 col-md-3">
-          <label class="form-label">Reference</label>
+        <div class="mb-3 col-4">
+          <label class="form-label">Group</label>
           <input type="text" class="groupName form-control" placeholder="Group1" name="groupName" value="{{form_data.groupName|default:''}}"
             onfocus="showDropdown()" id="groupName" oninput="filterFunction()" onclick="showDropdown()"
             autocomplete="off" required >
@@ -118,21 +68,82 @@
             {% endfor %}
           </div>
         </div>
-        <div class="mb-3 col-md-3">
-          <label class="form-label">Opposition Notice Received Date</label>
-          <input class="form-control" type="date" name="oppDate" value="{{form_data.oppDate|date:'Y-m-d'|default:''}}"/>
+        <div class="mb-3 col-4">
+          <label class="form-label">Application No.</label>
+          <input class="form-control" type="number" name="applicationNo" value="{{form_data.applicationNo|default:''}}" required/>
         </div>
-        <div class="mb-3 col-md-3">
-          <label class="form-label">Last Date</label>
-          <input class="form-control" type="date" name="lastDate" value="{{form_data.lastDate|date:'Y-m-d'|default:''}}"/>
+        <div class="mb-3 col-4">
+          <label class="form-label">Class</label>
+          <input class="form-control" type="number" name="classNo" value="{{form_data.classNo|default:''}}"/>
         </div>
-        <div class="mb-3 col-md-3">
-          <label class="form-label">Fees</label>
+        <div class="mb-3 col-4">
+          <label class="form-label">Date of Application</label>
+          <input class="form-control" type="date" name="dateOfApp" value="{{form_data.dateOfApp|default:''}}"/>
+        </div>
+        <div class="mb-3 col-4">
+          <label class="form-label">Current Status 1</label>
+          <select name="status1" class="form-select" id="status1" required>
+            <option value="" selected>Select Status</option>
+            <option value="Application to be filed" {% if form_data.status1 == 'Application to be filed' %}selected{% endif %}>Application to be filed</option>
+            <option value="Formalities Chk Pass" {% if form_data.status1 == 'Formalities Chk Pass' %}selected{% endif %}>Formalities Chk Pass</option>
+            <option value="Marked for Exam" {% if form_data.status1 == 'Marked for Exam' %}selected{% endif %}>Marked for Exam</option>
+            <option value="Send To Vienna Condification" {% if form_data.status1 == 'Send To Vienna Condification' %}selected{% endif %}>Send To Vienna Condification</option>
+            <option value="Objected" {% if form_data.status1 == 'Objected' %}selected{% endif %}>Objected</option>
+            <option value="Accepted" {% if form_data.status1 == 'Accepted' %}selected{% endif %}>Accepted</option>
+            <option value="Opposed" {% if form_data.status1 == 'Opposed' %}selected{% endif %}>Opposed</option>
+            <option value="Abandoned" {% if form_data.status1 == 'Abandoned' %}selected{% endif %}>Abandoned</option>
+            <option value="Registered" {% if form_data.status1 == 'Registered' %}selected{% endif %}>Registered</option>
+            <option value="Rectification filed" {% if form_data.status1 == 'Rectification filed' %}selected{% endif %}>Rectification filed</option>
+          </select>
+        </div>
+        <div class="mb-3 col-4">
+          <label class="form-label">Current Status 2</label>
+          <select name="status2" class="form-select" id="status">
+            <option value="" selected>Select Status</option>
+            <option value="Awaiting Reply to Exam Report" {% if form_data.status2 == 'Awaiting Reply to Exam Report' %}selected{% endif %}>Awaiting Reply to Exam Report</option>
+            <option value="Reply Submitted" {% if form_data.status2 == 'Reply Submitted' %}selected{% endif %}>Reply Submitted</option>
+            <option value="Ready for Show cause Hearing" {% if form_data.status2 == 'Ready for Show cause Hearing' %}selected{% endif %}>Ready for Show cause Hearing</option>
+            <option value="Hearing notice (Show Cause)" {% if form_data.status2 == 'Hearing notice (Show Cause)' %}selected{% endif %}>Hearing notice (Show Cause)</option>
+            <option value="Hearing notice (Adjourned)" {% if form_data.status2 == 'Hearing notice (Adjourned)' %}selected{% endif %}>Hearing notice (Adjourned)</option>
+            <option value="TM-O Filed" {% if form_data.status2 == 'TM-O Filed' %}selected{% endif %}>TM-O Filed</option>
+            <option value="Opposition Notice Received / Served" {% if form_data.status2 == 'Opposition Notice Received / Served' %}selected{% endif %}>Opposition Notice Received / Served</option>
+            <option value="Rule 45 Received / Served" {% if form_data.status2 == 'Rule 45 Received / Served' %}selected{% endif %}>Rule 45 Received / Served</option>
+            <option value="Counter Stmt Received / Served" {% if form_data.status2 == 'Counter Stmt Received / Served' %}selected{% endif %}>Counter Stmt Received / Served</option>
+            <option value="Rule 46 Received / Served" {% if form_data.status2 == 'Rule 46 Received / Served' %}selected{% endif %}>Rule 46 Received / Served</option>
+            <option value="Assignment Pending" {% if form_data.status2 == 'Assignment Pending' %}selected{% endif %}>Assignment Pending</option>
+          </select>
+        </div>
+        <div class="mb-3 col-4">
+          <label class="form-label">Remarks</label>
+          <input class="form-control" type="text" name="remark" value="{{form_data.remark|default:''}}" />
+        </div>
+        <div class="mb-3 col-4">
+          <label class="form-label">Notice Receive / Serve Date</label>
+          <input class="form-control" type="date" name="oppDate" value="{{form_data.oppDate|default:''}}"/>
+        </div>
+        <div class="mb-3 col-4">
+          <label class="form-label">Reply Due Date</label>
+          <input class="form-control" type="date" name="lastDate" value="{{form_data.lastDate|default:''}}"/>
+        </div>
+        <div class="mb-3 col-4">
+          <label class="form-label">Fees Amt.</label>
           <input class="form-control" type="text" name="fees" value="{{form_data.fees|default:''}}" />
         </div>
-        <div class="mb-3 col-md-3">
-          <label class="form-label">Expiry Date</label>
-          <input class="form-control" type="date" name="expiryDate" value="{{form_data.expiryDate|date:'Y-m-d'|default:''}}"/>
+         <div class="mb-3 col-4">
+          <label class="form-label">Hearing Date</label>
+          <input class="form-control" type="date" name="hearingDate" value="{{form_data.hearingDate|default:''}}"/>
+        </div>
+        <div class="mb-3 col-4">
+          <label class="form-label">Renewal Date</label>
+          <input class="form-control" type="date" name="expiryDate" value="{{form_data.expiryDate|default:''}}"/>
+        </div>
+        <div class="mb-3 col-4">
+          <label class="form-label">Fees Received</label>
+          <select name="feesStatus" class="form-select" id="feesStatus"> 
+            <option value="" selected>Select Status</option>
+            <option value="Yes" {% if form_data.feesStatus == 'Yes' %}selected{% endif %}>Yes</option>
+            <option value="Pending" {% if form_data.feesStatus == 'Pending' %}selected{% endif %}>Pending</option>
+          </select>
         </div>
         <div class="mb-3 col-md-1">
           <label class="form-label">Archive</label>
@@ -146,6 +157,27 @@
   </div>
 </div>
 
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const status1 = document.getElementById('status1');
+    const applicationNo = document.querySelector('input[name="applicationNo"]');
+    const renewalDate = document.querySelector('input[name="expiryDate"]');
+
+
+    status1.addEventListener('change', function () {
+      if (status1.value === 'Application to be filed') {
+        applicationNo.required = false;
+      } else if (status1.value === 'Registered') {
+        renewalDate.required = true;
+      }
+      else {
+        applicationNo.required = true;
+        renewalDate.required = false;
+      }
+    });
+  });
+</script>
 
 <script>
   let autoCompleted = false;

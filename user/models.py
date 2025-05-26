@@ -100,6 +100,9 @@ class UpdatedUser(models.Model):
     userModifiedDate = models.DateTimeField(auto_now=True)
 
     isClientUser = models.BooleanField(default=False)
+    accessToPendingWork = models.BooleanField(default=False)
+    accessToAnnual = models.BooleanField(default=False)
+    accessToTrademark = models.BooleanField(default=False)
     canReadOnly = models.BooleanField(default=False)
     canReadWrite = models.BooleanField(default=False)
 
@@ -119,6 +122,9 @@ class HistoryUser(models.Model):
     userModifiedDate = models.DateTimeField()
 
     isClientUser = models.BooleanField(default=False)
+    accessToPendingWork = models.BooleanField(default=False)
+    accessToAnnual = models.BooleanField(default=False)
+    accessToTrademark = models.BooleanField(default=False)
     canReadOnly = models.BooleanField(default=False)
     canReadWrite = models.BooleanField(default=False)
 
@@ -439,7 +445,7 @@ class Trademark(models.Model):
     applicationNo = models.CharField(max_length=100, default='')
     classNo = models.CharField(max_length=100, default='')
     nameOfApplicant = models.CharField(max_length=255)
-    dateOfApp = models.DateField()
+    dateOfApp = models.DateField(null=True, blank=True)
     status1 = models.CharField(max_length=50, default='')
     status2 = models.CharField(max_length=50, default='')
     hearingDate = models.DateField(null=True, blank=True)
@@ -448,6 +454,7 @@ class Trademark(models.Model):
     oppDate = models.DateField(null=True, blank=True)
     lastDate = models.DateField(null=True, blank=True)
     fees = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    feesStatus = models.CharField(max_length=50, default='', null=True, blank=True)
     expiryDate = models.DateField(null=True, blank=True)
     isArchived = models.BooleanField(default=False)
     modifiedDate = models.DateTimeField(auto_now=True)
@@ -464,7 +471,7 @@ class HistoryTrademark(models.Model):
     applicationNo = models.CharField(max_length=100, default='')
     classNo = models.CharField(max_length=100, default='')
     nameOfApplicant = models.CharField(max_length=255)
-    dateOfApp = models.DateField()
+    dateOfApp = models.DateField(null=True, blank=True)
     status1 = models.CharField(max_length=50, default='')
     status2 = models.CharField(max_length=50, default='', null=True, blank=True)
     hearingDate = models.DateField(null=True, blank=True)
@@ -473,6 +480,7 @@ class HistoryTrademark(models.Model):
     oppDate = models.DateField(null=True, blank=True)
     lastDate = models.DateField(null=True, blank=True)
     fees = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    feesStatus = models.CharField(max_length=50, default='', null=True, blank=True)
     expiryDate = models.DateField(null=True, blank=True)
     isArchived = models.BooleanField(default=False)
     modifiedDate = models.DateTimeField()
