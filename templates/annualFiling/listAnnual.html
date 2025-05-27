@@ -169,12 +169,12 @@
                             {% endif %}
                             <td class="varDisplay">{{ annualFiling.companyID.groupID.groupName }}</td>
                             <td style="display: none;">{{ annualFiling.financialYear }}</td>
-                            <td>{{ annualFiling.statusDPT3 }}</td>
-                            <td>{{ annualFiling.statusMGT14 }}</td>
-                            <td>{{ annualFiling.statusAOC4 }}</td>
-                            <td>{{ annualFiling.statusMGT7 }}</td>
-                            <td>{{ annualFiling.statusForm11 }}</td>
-                            <td>{{ annualFiling.statusForm8 }}</td>
+                            <td {% if annualFiling.is_approved_DPT3 %}style="color: green;"{% elif annualFiling.is_pending_DPT3 %}style="color: red;"{% endif %}>{{ annualFiling.statusDPT3 }}</td>
+                            <td {% if annualFiling.is_approved_MGT14 %}style="color: green;"{% elif annualFiling.is_pending_MGT14 %}style="color: red;"{% endif %}>{{ annualFiling.statusMGT14 }}</td>
+                            <td {% if annualFiling.is_approved_AOC4 %}style="color: green;"{% elif annualFiling.is_pending_AOC4 %}style="color: red;"{% endif %}>{{ annualFiling.statusAOC4 }}</td>
+                            <td {% if annualFiling.is_approved_MGT7 %}style="color: green;"{% elif annualFiling.is_pending_MGT7 %}style="color: red;"{% endif %}>{{ annualFiling.statusMGT7 }}</td>
+                            <td {% if annualFiling.is_approved_Form11 %}style="color: green;"{% elif annualFiling.is_pending_Form11 %}style="color: red;"{% endif %}>{{ annualFiling.statusForm11 }}</td>
+                            <td {% if annualFiling.is_approved_Form8 %}style="color: green;"{% elif annualFiling.is_pending_Form8 %}style="color: red;"{% endif %}>{{ annualFiling.statusForm8 }}</td>
                             {% if not user.isClientUser or user.isClientUser and user.canReadWrite %}
                             <td style="text-align: center;">
                                 <a href="{% url 'updateAnnual' annualFiling.annualFilingID %}">

@@ -308,6 +308,20 @@ def listAnnual(request):
 
     annualFilies = qs.order_by('-isPinned', '-modifiedDate')
 
+    for af in annualFilies:
+        af.is_approved_DPT3 = (af.statusDPT3 == 'Approved')
+        af.is_approved_MGT14 = (af.statusMGT14 == 'Approved')
+        af.is_approved_AOC4 = (af.statusAOC4 == 'Approved')
+        af.is_approved_MGT7 = (af.statusMGT7 == 'Approved')
+        af.is_approved_Form11 = (af.statusForm11 == 'Approved')
+        af.is_approved_Form8 = (af.statusForm8 == 'Approved')
+
+        af.is_pending_DPT3 = (af.statusDPT3 == 'Pending')
+        af.is_pending_MGT14 = (af.statusMGT14 == 'Pending')
+        af.is_pending_AOC4 = (af.statusAOC4 == 'Pending')
+        af.is_pending_MGT7 = (af.statusMGT7 == 'Pending')
+        af.is_pending_Form11 = (af.statusForm11 == 'Pending')
+        af.is_pending_Form8 = (af.statusForm8 == 'Pending')
     return render(request, 'annualFiling/listAnnual.html', {
         'base': base,
         'user': user,
