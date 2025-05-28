@@ -2222,8 +2222,10 @@ def deleteCompany(request):
                     # Check if there are clients or DSCs associated with the company
                     has_clients = query(user, UpdatedClient).filter(companyID=company.companyID).exists()
                     has_dscs = query(user, UpdatedDSC).filter(companyID=company.companyID).exists()
+                    has_pending_work = PendingWork.objects.filter(companyID=company.companyID).exists()
+                    has_annual = AnnualFiling.objects.filter(companyID=company.companyID).exists()
 
-                    if has_clients or has_dscs:
+                    if has_clients or has_dscs or has_pending_work or has_annual:
                         undeletable_companies.append(company.companyID)
 
                 if undeletable_companies:
@@ -2256,8 +2258,11 @@ def deleteGroup(request):
                     has_companies = UpdatedCompany.objects.filter(groupID=group.groupID).exists()
                     has_clients = UpdatedClient.objects.filter(companyID__groupID=group.groupID).exists()
                     has_dscs = UpdatedDSC.objects.filter(companyID__groupID=group.groupID).exists()
+                    has_pending_work = PendingWork.objects.filter(companyID__groupID=group.groupID).exists()
+                    has_annual = AnnualFiling.objects.filter(companyID__groupID=group.groupID).exists()
+                    has_trademark = Trademark.objects.filter(groupID=group.groupID).exists()
 
-                    if has_companies or has_clients or has_dscs:
+                    if has_companies or has_clients or has_dscs or has_pending_work or has_annual or has_trademark:
                         undeletable_groups.append(group.groupID)
 
                 if undeletable_groups:
@@ -2370,10 +2375,8 @@ def deleteTrademark(request):
             if not trademarkIDs:
                 messages.error(request, "No Trademark records selected for deletion.")
             else:
-                if user.groupID:
-                    count, _ = Trademark.objects.filter(trademarkID__in=trademarkIDs, groupID=user.groupID).delete()
-                else:
-                    count, _ = Trademark.objects.filter(trademarkID__in=trademarkIDs).delete()
+                count, _ = query(user, Trademark).filter(trademarkID__in=trademarkIDs, groupID=user.groupID).delete()
+                
                 if count > 0:
                     messages.success(request, f"Deleted Trademark record(s) successfully.")
                 else:
