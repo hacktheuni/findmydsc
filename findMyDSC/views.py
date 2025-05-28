@@ -4,7 +4,7 @@ import re
 from django.contrib.auth import logout
 from django.contrib import messages
 from django.contrib.auth.hashers import check_password, make_password
-# import razorpay
+import razorpay
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.core.mail import send_mail
@@ -12,7 +12,7 @@ from django.core.cache import cache
 import uuid
 
 # Initialize Razorpay client
-# razorpay_client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+razorpay_client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
 
 
 def signUp(request):
