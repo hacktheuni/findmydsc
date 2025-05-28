@@ -152,6 +152,16 @@ def userSignIn(request):
                                     request.session.set_expiry(0)  # Session expires on browser close
 
                                 messages.success(request, f"Successfully logged in as {user.userName}.")
+                                if user.isClientUser:
+                                    if user.accessToPendingWork:
+                                        return redirect('listPendingWork')
+                                    elif user.accessToAnnual:
+                                        return redirect('listAnnual')
+                                    elif user.accessToTrademark:
+                                        return redirect('listTrademark')
+                                    else:
+                                        messages.error(request, "Access denied: You are not allowed to view this page.")
+                                        return redirect('userSignIn')
                                 return redirect('listPendingWork')  # Redirect to user dashboard
                             else:
                                 messages.error(request, "Your account is deactivated.")
@@ -180,13 +190,23 @@ def adminSignIn(request):
                 return redirect('listPendingWork')
             messages.info(request, "Please choose a subscription plan.")
             return redirect('selectPlan')
-        messages.error(request, "Your SubAdmin account is deactivated.")
+        messages.error(request, "Your account is deactivated.")
         return redirect('adminSignIn')
 
     # Check if user is logged in and active
     if userID:
         user = UpdatedUser.objects.filter(userID=userID, isActive=True).first()
         if user:
+            if user.isClientUser:
+                if user.accessToPendingWork:
+                    return redirect('listPendingWork')
+                elif user.accessToAnnual:
+                    return redirect('listAnnual')
+                elif user.accessToTrademark:
+                    return redirect('listTrademark')
+                else:
+                    messages.error(request, "Access denied: You are not allowed to view this page.")
+                    return redirect('userSignIn')
             return redirect('listPendingWork')
         messages.error(request, "Your User account is deactivated.")
         return redirect('userSignIn')
@@ -217,7 +237,7 @@ def adminSignIn(request):
                         request.session['subAdminID'] = admin.subAdminID
                         request.session['subAdminName'] = admin.subAdminName
                         _set_session_expiry(request, rememberMe)
-
+ 
                         if admin.freeUser:
                             messages.success(request, "Successfully logged in as Free User.")
                             return redirect('listDSC')
@@ -226,7 +246,7 @@ def adminSignIn(request):
                         if admin.isFirstLogin or not admin.hasChosenPlan:
                             if admin.hasUsedFreePlan:
                                 messages.info(request, "You have already used the free plan. Please select a paid plan.")
-                                return redirect('selectPlan')
+                            return redirect('selectPlan')
                         else:
                             subscription = SubAdminSubscription.objects.filter(subAdminID=admin, isActive=True).first()
                             if subscription and subscription.is_subscription_active():
@@ -234,7 +254,8 @@ def adminSignIn(request):
                                 return redirect('listPendingWork')
                             messages.error(request, "Your subscription has expired. Please renew your subscription.")
                             return redirect('selectPlan')
-                    messages.error(request, "Your SubAdmin account is deactivated.")
+                    else:
+                        messages.error(request, "Your account is deactivated.")
                 else:
                     messages.error(request, "Invalid password.")
             else:

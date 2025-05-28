@@ -83,26 +83,26 @@
         <div class="mb-3 col-md-3">
           <label class="form-label">Group Name</label>
           <input type="text" class="groupName form-control" placeholder="Group1" name="groupName" value="{{form_data.groupName|default:''}}"
-            onfocus="showDropdown()" id="groupName" oninput="filterFunction()" onclick="showDropdown()"
+            onfocus="showDropdown()" id="groupName" oninput="filterFunction();makeRequiredField()" onclick="showDropdown()"
             autocomplete="off" >
           <div class="dropdown-arrow" onclick="toggleDropdown()"></div>
           <div class="dropdown-values" id="dropdown-values">
             {% for group in groups %}
-            <div onclick="selectValue('{{group.groupName}}')">{{group.groupName}}</div>
+            <div onclick="selectValue('{{group.groupName}}');makeRequiredField()">{{group.groupName}}</div>
             {% endfor %}
           </div>
         </div>
         <div class="mb-3 col-md-2">
           <label class="form-label">Pending Work</label>
-          <input class="form-check-input form-control" name="accessToPendingWork" type="checkbox" value="True" />  
+          <input class="form-check-input form-control" id="accessToPendingWork" onchange="makeRequiredField()" name="accessToPendingWork" type="checkbox" value="True" />  
         </div>
         <div class="mb-3 col-md-2">
           <label class="form-label">Annual Filing</label>
-          <input class="form-check-input form-control" name="accessToAnnual" type="checkbox" value="True" />  
+          <input class="form-check-input form-control" id="accessToAnnual" onchange="makeRequiredField()" name="accessToAnnual" type="checkbox" value="True" />  
         </div>
         <div class="mb-3 col-md-2">
           <label class="form-label">Trademark</label>
-          <input class="form-check-input form-control" name="accessToTrademark" type="checkbox" value="True" />  
+          <input class="form-check-input form-control" id="accessToTrademark" onchange="makeRequiredField()" name="accessToTrademark" type="checkbox" value="True" />  
         </div>
         <div class="mb-3 col-md-1">
           <label class="form-label">Read Only</label>
@@ -223,6 +223,7 @@
     } else if (event.key === "Backspace") {
       preventAutoComplete = true;
     }
+
   });
 
   function addActive(values) {
@@ -248,6 +249,29 @@
       dropdown.style.display = 'none';
     }
   });
+
+
+  function makeRequiredField(){
+    let groupName = document.getElementById('groupName')
+    let accessToPendingWork = document.getElementById('accessToPendingWork')
+    let accessToAnnual = document.getElementById('accessToAnnual')
+    let accessToTrademark = document.getElementById('accessToTrademark')
+
+    if (groupName.value){
+      if (!accessToPendingWork.checked && !accessToAnnual.checked && !accessToTrademark.checked){
+        accessToPendingWork.required = true
+        accessToAnnual.required = true
+        accessToTrademark.required = true
+      }
+      else if (accessToAnnual.checked || accessToPendingWork.checked || accessToTrademark.checked){
+        accessToPendingWork.required = false
+        accessToAnnual.required = false
+        accessToTrademark.required = false
+      }
+    }
+  }
+
+
 </script>
 <!--/ Bordered Table -->
 {% endblock container %}

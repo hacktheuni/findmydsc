@@ -32,11 +32,11 @@ def getUser(request):
     elif subAdminID:
         try:
             subAdmin = SignUP.objects.get(subAdminID=subAdminID)
-            user = UpdatedUser.objects.get(userPhone=subAdmin.subAdminPhone)
+            user = UpdatedUser.objects.get(userPhone=subAdmin.subAdminPhone, isActive=False)
             base = 'base/subAdminBase.html'
             if subAdmin.freeUser:
                 base = 'base/freeUserBase.html'
-        except SignUP.DoesNotExist:
+        except SignUP.DoesNotExist or UpdatedUser.DoesNotExist:
             messages.error(request, "SubAdmin not found.")
             return redirect('adminSignIn')
     elif superAdminID:
@@ -877,7 +877,7 @@ def addPendingWork(request):
                 fees=fees,
                 isArchived=isArchived,
                 isPinned=isPinned,
-                modifiedBy=user,
+                modifiedBy=user.userName,
                 indexSRN=next_index,  # New auto-increment field for the subAdmin
             )
             pending_work.save()
@@ -903,7 +903,7 @@ def addPendingWork(request):
                 isArchived=isArchived,
                 isPinned=isPinned,
                 indexSRN=next_index,
-                modifiedBy=user,
+                modifiedBy=user.userName,
                 modifiedDate=pending_work.modifiedDate  # assuming this field exists
             )
             history_pending_work.save()

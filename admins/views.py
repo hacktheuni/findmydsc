@@ -22,7 +22,7 @@ def listUser(request):
     if subAdminID:
         try:
             subAdmin = SignUP.objects.get(subAdminID=subAdminID)
-            user = UpdatedUser.objects.get(userPhone=subAdmin.subAdminPhone)
+            user = UpdatedUser.objects.get(userPhone=subAdmin.subAdminPhone, isActive=False)
             users = UpdatedUser.objects.filter(subAdminID=subAdmin.subAdminID, isActive="True").all().order_by('-userModifiedDate')
             context = {
                 'base': 'base/subAdminBase.html',
@@ -47,7 +47,7 @@ def addUser(request):
     if subAdminID:
         try:
             subAdmin = SignUP.objects.get(subAdminID=subAdminID)
-            user = UpdatedUser.objects.get(userPhone=subAdmin.subAdminPhone)
+            user = UpdatedUser.objects.get(userPhone=subAdmin.subAdminPhone, isActive=False)
         except SignUP.DoesNotExist:
             messages.error(request, "SubAdmin not found.")
             return redirect('adminSignIn')
@@ -89,12 +89,24 @@ def addUser(request):
             try:
                 group_obj = UpdatedGroup.objects.get(subAdminID=user.subAdminID, groupName=groupName) if groupName else None
                 isClientUser = True
-                if perm == "readOlny":
-                    readOnly = True
-                elif perm == "readWrite":
+                readOnly = True
+                if perm == "readWrite":
                     readWrite = True
+                    readOnly = False
             except UpdatedGroup.DoesNotExist:
                 messages.error(request, "Group not found.")
+                context['form_data'] = form_data
+                return render(request, 'user/addUser.html', context)
+
+            if groupName:
+                if not accessToAnnual and not accessToPendingWork and not accessToTrademark:
+                    messages.error(request, "One of the page access is required.")
+                    context['form_data'] = form_data
+                    return render(request, 'user/addUser.html', context)
+                
+            # Check if all fields are filled
+            if not userName or not userPhone or not userUsername or not userPassword:
+                messages.error(request, "All fields are required.")
                 context['form_data'] = form_data
                 return render(request, 'user/addUser.html', context)
 
@@ -209,14 +221,19 @@ def updateUser(request, userID):
             try:
                 group_obj = UpdatedGroup.objects.get(subAdminID=user.subAdminID, groupName=groupName) if groupName else None
                 isClientUser = True
-                if perm == "readOnly":
-                    readOnly = True
-                elif perm == "readWrite":
+                readOnly = True
+                if perm == "readWrite":
                     readWrite = True
+                    readOnly = False
             except UpdatedGroup.DoesNotExist:
                 messages.error(request, "Group not found.")
                 return render(request, 'user/updateUser.html', context)
 
+            if groupName:
+                if not accessToAnnual and not accessToPendingWork and not accessToTrademark:
+                    messages.error(request, "One of the page access is required.")
+                    return render(request.path)
+                
             # Check if all fields are filled
             if not userName or not userPhone or not userUsername:
                 messages.error(request, "All fields are required.")
@@ -239,12 +256,12 @@ def updateUser(request, userID):
                     return redirect(request.path)
             
             # Check if phone number already exists for another user (exclude current user)
-            if UpdatedUser.objects.filter(userPhone=userPhone).exclude(userID=userID).exists():
+            if UpdatedUser.objects.filter(subAdminID=subAdmin.subAdminID, userPhone=userPhone).exclude(userID=userID).exists():
                 messages.error(request, "Phone number already exists.")
                 return redirect(request.path)
 
             # Check if username already exists for another user (exclude current user)
-            if UpdatedUser.objects.filter(userUsername=userUsername).exclude(userID=userID).exists():
+            if UpdatedUser.objects.filter(subAdminID=subAdmin.subAdminID, userUsername=userUsername).exclude(userID=userID).exists():
                 messages.error(request, "Username already exists.")
                 return redirect(request.path)
 
@@ -322,7 +339,7 @@ def updateProfile(request):
     subAdminID = request.session.get('subAdminID')
     if subAdminID:
         subAdmin = SignUP.objects.get(subAdminID=subAdminID)
-        user = UpdatedUser.objects.get(userPhone=subAdmin.subAdminPhone)
+        user = UpdatedUser.objects.get(userPhone=subAdmin.subAdminPhone, isActive=False)
         
         context = {
             'base': 'base/subAdminBase.html',
@@ -431,7 +448,7 @@ def subscriptionDetails(request):
 
     if subAdminID:
         subAdmin = SignUP.objects.get(subAdminID=subAdminID)
-        user = UpdatedUser.objects.get(userPhone=subAdmin.subAdminPhone)
+        user = UpdatedUser.objects.get(userPhone=subAdmin.subAdminPhone, isActive=False)
         subscriptionPlan = SubscriptionPlan.objects.all()
         activePlan = SubAdminSubscription.objects.filter(subAdminID=subAdmin, isActive=True).first()
 
@@ -666,6 +683,59 @@ def exportToExcel(request):
                 amt,
             ])
 
+    # ================================
+    # 8 **Trademark Archived SHEET**
+    # ================================
+    ws6 = wb.create_sheet(title="Trademark Archived")
+    ws6.append(['SRN No.', 'Name of Trademark', 'Name of Applicant', 'Group', 'Application No.', 'Class ', 'Date of Application', 'Current Status 1', 'Current Status 2', 'Remarks', 'Notice Receive / Serve Date', 'Reply Due Date', 'Fees Amt.', 'Hearing Date', 'Renewal Date', 'Fees Received'])
+
+    trademarks = Trademark.objects.filter(subAdminID=sub_admin_id, isArchived=True).all()
+    for tm in trademarks:
+        ws6.append([
+            tm.indexSRN,
+            tm.nameOfTrademark,
+            tm.nameOfApplicant,
+            tm.groupID.groupName,
+            tm.applicationNo,
+            tm.classNo,
+            tm.dateOfApp,
+            tm.status1,
+            tm.status2,
+            tm.remark,
+            tm.oppDate,
+            tm.lastDate,
+            tm.fees,
+            tm.hearingDate,
+            tm.expiryDate,
+            tm.feesStatus,
+        ])
+
+    # ================================
+    # 9 **Trademark SHEET**
+    # ================================
+    ws6 = wb.create_sheet(title="Trademark")
+    ws6.append(['SRN No.', 'Name of Trademark', 'Name of Applicant', 'Group', 'Application No.', 'Class ', 'Date of Application', 'Current Status 1', 'Current Status 2', 'Remarks', 'Notice Receive / Serve Date', 'Reply Due Date', 'Fees Amt.', 'Hearing Date', 'Renewal Date', 'Fees Received'])
+
+    trademarks = Trademark.objects.filter(subAdminID=sub_admin_id, isArchived=False).all()
+    for tm in trademarks:
+        ws6.append([
+            tm.indexSRN,
+            tm.nameOfTrademark,
+            tm.nameOfApplicant,
+            tm.groupID.groupName,
+            tm.applicationNo,
+            tm.classNo,
+            tm.dateOfApp,
+            tm.status1,
+            tm.status2,
+            tm.remark,
+            tm.oppDate,
+            tm.lastDate,
+            tm.fees,
+            tm.hearingDate,
+            tm.expiryDate,
+            tm.feesStatus,
+        ])
 
     # Auto-adjust column width for better readability
     for sheet in wb.worksheets:
