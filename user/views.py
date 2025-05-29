@@ -8,6 +8,7 @@ from django.contrib.auth.hashers import check_password, make_password
 from datetime import date, datetime, timedelta
 from django.db.models import Max
 from django.utils.timezone import localtime
+from urllib.parse import urlparse
 
 def getUser(request):
     userID = request.session.get('userID')
@@ -2328,6 +2329,16 @@ def deleteWork(request):
 @allow_only_client_users
 def deletePendingWork(request):
     user = getUser(request).get('user')
+
+    # Get the referring URL (e.g., from which page the POST came)
+    referer = request.META.get('HTTP_REFERER', '')
+    redirect_url = '/user/listPendingWork'  # Default
+
+    if referer:
+        parsed_url = urlparse(referer)
+        if 'archived=true' in parsed_url.query:
+            redirect_url = '/user/listPendingWork?archived=true'
+
     if request.method == 'POST':
         pendingWorkIDs = request.POST.getlist('pendingWorkIDs')
         confirmation = request.POST.get('deletePendingWork')
@@ -2343,11 +2354,21 @@ def deletePendingWork(request):
                     messages.error(request, "No pending work records were deleted. Please try again.")
         else:
             messages.error(request, "Deletion not confirmed.")
-    return redirect('listPendingWork')
+    return redirect(redirect_url)
 
 @allow_only_client_users
 def deleteAnnual(request):
     user = getUser(request).get('user')
+
+    # Get the referring URL (e.g., from which page the POST came)
+    referer = request.META.get('HTTP_REFERER', '')
+    redirect_url = '/user/listAnnual'  # Default
+
+    if referer:
+        parsed_url = urlparse(referer)
+        if 'archived=true' in parsed_url.query:
+            redirect_url = '/user/listAnnual?archived=true'
+
     if request.method == 'POST':
         annualFilingIDs = request.POST.getlist('annualFilingIDs')
         confirmation = request.POST.get('deleteAnnual')
@@ -2363,11 +2384,21 @@ def deleteAnnual(request):
                     messages.error(request, "No annual filing records were deleted. Please try again.")
         else:
             messages.error(request, "Deletion not confirmed.")
-    return redirect('listAnnual')
+    return redirect(redirect_url)
 
 @allow_only_client_users
 def deleteTrademark(request):
     user = getUser(request).get('user')
+
+    # Get the referring URL (e.g., from which page the POST came)
+    referer = request.META.get('HTTP_REFERER', '')
+    redirect_url = '/user/listTrademark'  # Default
+
+    if referer:
+        parsed_url = urlparse(referer)
+        if 'archived=true' in parsed_url.query:
+            redirect_url = '/user/listTrademark?archived=true'
+
     if request.method == 'POST':
         trademarkIDs = request.POST.getlist('trademarkIDs')
         confirmation = request.POST.get('deleteTrademark')
@@ -2383,7 +2414,7 @@ def deleteTrademark(request):
                     messages.error(request, "No Trademark records were deleted. Please try again.")
         else:
             messages.error(request, "Deletion not confirmed.")
-    return redirect('listTrademark')
+    return redirect(redirect_url)
 
 
 # All Other Function are here
