@@ -2355,7 +2355,7 @@ def deleteAnnual(request):
             if not annualFilingIDs:
                 messages.error(request, "No annual filing records selected for deletion.")
             else:
-                count, _ = query(user, AnnualFiling).filter(annualFilingID__in=annualFilingIDs, companyID__groupID=user.groupID).delete()
+                count, _ = query(user, AnnualFiling).filter(annualFilingID__in=annualFilingIDs).delete()
 
                 if count > 0:
                     messages.success(request, f"Deleted annual filing record(s) successfully.")
@@ -2375,7 +2375,7 @@ def deleteTrademark(request):
             if not trademarkIDs:
                 messages.error(request, "No Trademark records selected for deletion.")
             else:
-                count, _ = query(user, Trademark).filter(trademarkID__in=trademarkIDs, groupID=user.groupID).delete()
+                count, _ = query(user, Trademark).filter(trademarkID__in=trademarkIDs).delete()
                 
                 if count > 0:
                     messages.success(request, f"Deleted Trademark record(s) successfully.")
