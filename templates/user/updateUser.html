@@ -87,7 +87,7 @@
           <label class="form-label">Group Name</label>
           <input type="text" class="groupName form-control" name="groupName" value="{{user.groupID.groupName}}"
             onfocus="showDropdown()" id="groupName" oninput="filterFunction();makeRequiredField()" onclick="showDropdown()"
-            autocomplete="off" >
+            autocomplete="off" onchange="makeRequiredField()" />
           <div class="dropdown-arrow" onclick="toggleDropdown()"></div>
           <div class="dropdown-values" id="dropdown-values">
             {% for group in groups %}
@@ -107,7 +107,9 @@
           <label class="form-label">Trademark</label>
           <input class="form-check-input form-control" id="accessToTrademark" onchange="makeRequiredField()" name="accessToTrademark" {% if user.accessToTrademark %}checked{% endif %} type="checkbox" value="True" />  
         </div>
-        <div class="mb-3 col-md-1">
+        <div class="mb-3 col-md-2">
+        </div>
+        <div class="mb-3 col-md-2">
           <label class="form-label">Read Only</label>
           <input class="form-check-input form-control" name="perm" type="radio" {% if user.canReadOnly %}checked{% endif %} id="readOnly" value="readOnly" />  
         </div>
@@ -115,8 +117,12 @@
           <label class="form-label">Read & Write</label>
           <input class="form-check-input form-control" name="perm" type="radio" {% if user.canReadWrite %}checked{% endif %} id="readWrite" value="readWrite"/>
         </div>
+        <div class="mb-3 col-md-2">
+          <label class="form-label">Clear Permission</label>
+          <input class="form-check-input form-control" name="perm" type="radio" {% if not user.canReadWrite and not user.canReadOnly %}checked{% endif %} id="clearPerm" value="clearPerm" />
+        </div>
         <div class="mt-2">
-          <button type="submit" onclick="handleFormSubmit(event)" class="btn btn-primary me-2">Save</button>
+          <button type="submit" class="btn btn-primary me-2">Save</button>
           <button type="reset" class="btn btn-outline-secondary">Cancel</button>
         </div>
     </form>
@@ -278,13 +284,18 @@
     }
   });
 
-    function makeRequiredField(){
+ function makeRequiredField(){
     let groupName = document.getElementById('groupName')
     let accessToPendingWork = document.getElementById('accessToPendingWork')
     let accessToAnnual = document.getElementById('accessToAnnual')
     let accessToTrademark = document.getElementById('accessToTrademark')
 
-    if (groupName.value){
+    if (groupName.value === '' || groupName.value === null){
+      accessToPendingWork.required = false
+      accessToAnnual.required = false
+      accessToTrademark.required = false
+    }
+    else {
       if (!accessToPendingWork.checked && !accessToAnnual.checked && !accessToTrademark.checked){
         accessToPendingWork.required = true
         accessToAnnual.required = true

@@ -84,7 +84,7 @@
           <label class="form-label">Group Name</label>
           <input type="text" class="groupName form-control" placeholder="Group1" name="groupName" value="{{form_data.groupName|default:''}}"
             onfocus="showDropdown()" id="groupName" oninput="filterFunction();makeRequiredField()" onclick="showDropdown()"
-            autocomplete="off" >
+            autocomplete="off" onchange="makeRequiredField()" >
           <div class="dropdown-arrow" onclick="toggleDropdown()"></div>
           <div class="dropdown-values" id="dropdown-values">
             {% for group in groups %}
@@ -111,6 +111,10 @@
         <div class="mb-3 col-md-2">
           <label class="form-label">Read & Write</label>
           <input class="form-check-input form-control" name="perm" type="radio" id="readWrite" value="readWrite"/>
+        </div>
+        <div class="mb-3 col-md-2">
+          <label class="form-label">Clear Permission</label>
+          <input class="form-check-input form-control" name="perm" type="radio" id="clearPerm" value="clearPerm"/>
         </div>
         <div class="mt-2">
           <button type="submit" class="btn btn-primary me-2">Save</button>
@@ -257,7 +261,12 @@
     let accessToAnnual = document.getElementById('accessToAnnual')
     let accessToTrademark = document.getElementById('accessToTrademark')
 
-    if (groupName.value){
+    if (groupName.value === '' || groupName.value === null){
+      accessToPendingWork.required = false
+      accessToAnnual.required = false
+      accessToTrademark.required = false
+    }
+    else {
       if (!accessToPendingWork.checked && !accessToAnnual.checked && !accessToTrademark.checked){
         accessToPendingWork.required = true
         accessToAnnual.required = true

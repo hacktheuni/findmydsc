@@ -85,20 +85,21 @@ def addUser(request):
                 'groupName': groupName,
                 'perm': perm
             }
-
-            try:
-                group_obj = UpdatedGroup.objects.get(subAdminID=user.subAdminID, groupName=groupName) if groupName else None
-                isClientUser = True
-                readOnly = True
-                if perm == "readWrite":
-                    readWrite = True
-                    readOnly = False
-            except UpdatedGroup.DoesNotExist:
-                messages.error(request, "Group not found.")
-                context['form_data'] = form_data
-                return render(request, 'user/addUser.html', context)
-
+            group_obj = None
             if groupName:
+                try:
+                    group_obj = UpdatedGroup.objects.get(subAdminID=user.subAdminID, groupName=groupName)
+                    if perm == "readOnly":
+                        readOnly = True
+                        isClientUser = True
+                    elif perm == "readWrite":
+                        readWrite = True
+                        isClientUser = True
+                except UpdatedGroup.DoesNotExist:
+                    messages.error(request, "Group not found.")
+                    context['form_data'] = form_data
+                    return render(request, 'user/addUser.html', context)
+
                 if not accessToAnnual and not accessToPendingWork and not accessToTrademark:
                     messages.error(request, "One of the page access is required.")
                     context['form_data'] = form_data
@@ -218,18 +219,20 @@ def updateUser(request, userID):
             readWrite = False
             isClientUser = False
 
-            try:
-                group_obj = UpdatedGroup.objects.get(subAdminID=user.subAdminID, groupName=groupName) if groupName else None
-                isClientUser = True
-                readOnly = True
-                if perm == "readWrite":
-                    readWrite = True
-                    readOnly = False
-            except UpdatedGroup.DoesNotExist:
-                messages.error(request, "Group not found.")
-                return render(request, 'user/updateUser.html', context)
-
+            group_obj = None
             if groupName:
+                try:
+                    group_obj = UpdatedGroup.objects.get(subAdminID=user.subAdminID, groupName=groupName)
+                    if perm == "readOnly":
+                        readOnly = True
+                        isClientUser = True
+                    elif perm == "readWrite":
+                        readWrite = True
+                        isClientUser = True
+                except UpdatedGroup.DoesNotExist:
+                    messages.error(request, "Group not found.")
+                    return render(request.path)
+
                 if not accessToAnnual and not accessToPendingWork and not accessToTrademark:
                     messages.error(request, "One of the page access is required.")
                     return render(request.path)
