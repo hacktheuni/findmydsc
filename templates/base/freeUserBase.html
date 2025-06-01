@@ -181,6 +181,18 @@
       });
     };
   </script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      makeRequiredField();
+      const form = document.querySelector("form");
+      const submitBtn = form.querySelector("button[type='submit']");
+
+      form.addEventListener("submit", function () {
+        submitBtn.disabled = true;
+        submitBtn.innerText = "Submitting..."; // Optional: give user feedback
+      });
+    });
+  </script>
 
   <script src="{% static 'assets/js/menu.js' %}"></script>
   <script src="{% static 'assets/js/main.js' %}"></script>

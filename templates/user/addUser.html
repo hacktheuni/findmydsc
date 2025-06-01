@@ -106,15 +106,15 @@
         </div>
         <div class="mb-3 col-md-1">
           <label class="form-label">Read Only</label>
-          <input class="form-check-input form-control" name="perm" type="radio" id="readOnly" value="readOnly" />  
+          <input class="form-check-input form-control" name="perm" onclick="makeRequiredField()" type="radio" id="readOnly" value="readOnly" />  
         </div>
         <div class="mb-3 col-md-2">
           <label class="form-label">Read & Write</label>
-          <input class="form-check-input form-control" name="perm" type="radio" id="readWrite" value="readWrite"/>
+          <input class="form-check-input form-control" name="perm" onclick="makeRequiredField()" type="radio" id="readWrite" value="readWrite"/>
         </div>
         <div class="mb-3 col-md-2">
           <label class="form-label">Clear Permission</label>
-          <input class="form-check-input form-control" name="perm" type="radio" id="clearPerm" value="clearPerm"/>
+          <input class="form-check-input form-control" name="perm" onclick="makeRequiredField()" type="radio" id="clearPerm" value="clearPerm"/>
         </div>
         <div class="mt-2">
           <button type="submit" class="btn btn-primary me-2">Save</button>
@@ -255,32 +255,62 @@
   });
 
 
-  function makeRequiredField(){
-    let groupName = document.getElementById('groupName')
-    let accessToPendingWork = document.getElementById('accessToPendingWork')
-    let accessToAnnual = document.getElementById('accessToAnnual')
-    let accessToTrademark = document.getElementById('accessToTrademark')
+  function makeRequiredField() {
+    const groupName = document.getElementById('groupName').value.trim();
 
-    if (groupName.value === '' || groupName.value === null){
-      accessToPendingWork.required = false
-      accessToAnnual.required = false
-      accessToTrademark.required = false
+    const pending = document.getElementById('accessToPendingWork');
+    const annual = document.getElementById('accessToAnnual');
+    const trademark = document.getElementById('accessToTrademark');
+
+    const isGroupNameFilled = groupName !== '';
+    const isAnyCheckboxChecked = pending.checked || annual.checked || trademark.checked;
+
+    const permRadios = document.getElementsByName('perm');
+    let selectedPerm = '';
+    for (let radio of permRadios) {
+      if (radio.checked) {
+        selectedPerm = radio.value;
+        break;
+      }
     }
-    else {
-      if (!accessToPendingWork.checked && !accessToAnnual.checked && !accessToTrademark.checked){
-        accessToPendingWork.required = true
-        accessToAnnual.required = true
-        accessToTrademark.required = true
+    console.log("hello")
+    // Trigger validation if any of the conditions are true
+    const shouldValidate = isGroupNameFilled || isAnyCheckboxChecked || selectedPerm !== '';
+
+    if (shouldValidate) {
+      // Group name should be filled
+      document.getElementById('groupName').required = true;
+
+      // At least one checkbox must be checked
+      const checkboxRequired = !(pending.checked || annual.checked || trademark.checked);
+      pending.required = checkboxRequired;
+      annual.required = checkboxRequired;
+      trademark.required = checkboxRequired;
+
+      // Now validate permission selection
+      if (selectedPerm !== 'readOnly' && selectedPerm !== 'readWrite') {
+        // None or clearPerm selected → make user choose a valid one
+        readOnly.setCustomValidity("Please select Read Only or Read & Write");
+        readWrite.setCustomValidity("Please select Read Only or Read & Write");
+      } else {
+        // Valid permission selected
+        readOnly.setCustomValidity("");
+        readWrite.setCustomValidity("");
       }
-      else if (accessToAnnual.checked || accessToPendingWork.checked || accessToTrademark.checked){
-        accessToPendingWork.required = false
-        accessToAnnual.required = false
-        accessToTrademark.required = false
-      }
+    } else {
+      // If nothing is filled, make all optional
+      document.getElementById('groupName').required = false;
+      pending.required = false;
+      annual.required = false;
+      trademark.required = false;
+      readOnly.required = false;
+      readWrite.required = false;
     }
   }
 
-
+ window.onload = function() {
+    makeRequiredField();
+  };
 </script>
 <!--/ Bordered Table -->
 {% endblock container %}

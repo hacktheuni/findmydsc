@@ -62,22 +62,21 @@
           <label class="form-label">Phone Number</label>
           <div class="input-group input-group-merge">
             <span class="input-group-text">IN (+91)</span>
-            <input type="text" name="userPhone" id="phone" oninput="validateField(this)" value="{{user.userPhone}}" class="form-control"
-              placeholder="202 555 0111" required />
+            <input type="text" name="userPhone" id="phone" oninput="validateField(this)" value="{{user.userPhone}}"
+              class="form-control" placeholder="202 555 0111" required />
           </div>
           <span id="phoneError" class="error-message"></span>
         </div>
         <div class="mb-3 col-md-6">
           <label class="form-label">User ID</label>
           <input class="form-control" type="text" name="userUsername" value="{{user.userUsername}}"
-            placeholder="dinesh453" required/>
+            placeholder="dinesh453" required />
         </div>
         <div class="mb-3 col-md-6 form-password-toggle">
           <label class="form-label">Password</label>
           <div class="input-group input-group-merge">
-            <input type="password" class="form-control" name="userPassword" value=""
-              oninput="validateField(this)" id="password"
-              placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
+            <input type="password" class="form-control" name="userPassword" value="" oninput="validateField(this)"
+              id="password" placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
               aria-describedby="password" />
             <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
           </div>
@@ -86,8 +85,8 @@
         <div class="mb-3 col-md-3">
           <label class="form-label">Group Name</label>
           <input type="text" class="groupName form-control" name="groupName" value="{{user.groupID.groupName}}"
-            onfocus="showDropdown()" id="groupName" oninput="filterFunction();makeRequiredField()" onclick="showDropdown()"
-            autocomplete="off" onchange="makeRequiredField()" />
+            onfocus="showDropdown()" id="groupName" oninput="filterFunction();makeRequiredField()"
+            onclick="showDropdown()" autocomplete="off" onchange="makeRequiredField()" />
           <div class="dropdown-arrow" onclick="toggleDropdown()"></div>
           <div class="dropdown-values" id="dropdown-values">
             {% for group in groups %}
@@ -97,29 +96,33 @@
         </div>
         <div class="mb-3 col-md-2">
           <label class="form-label">Pending Work</label>
-          <input class="form-check-input form-control" id="accessToPendingWork" onchange="makeRequiredField()" name="accessToPendingWork" {% if user.accessToPendingWork %}checked{% endif %} type="checkbox" value="True" />  
+          <input class="form-check-input form-control" id="accessToPendingWork" onchange="makeRequiredField()"
+            name="accessToPendingWork" {% if user.accessToPendingWork %}checked{% endif %} type="checkbox"
+            value="True" />
         </div>
         <div class="mb-3 col-md-2">
           <label class="form-label">Annual Filing</label>
-          <input class="form-check-input form-control" id="accessToAnnual" onchange="makeRequiredField()" name="accessToAnnual" {% if user.accessToAnnual %}checked{% endif %} type="checkbox" value="True" />  
+          <input class="form-check-input form-control" id="accessToAnnual" onchange="makeRequiredField()"
+            name="accessToAnnual" {% if user.accessToAnnual %}checked{% endif %} type="checkbox" value="True" />
         </div>
         <div class="mb-3 col-md-2">
           <label class="form-label">Trademark</label>
-          <input class="form-check-input form-control" id="accessToTrademark" onchange="makeRequiredField()" name="accessToTrademark" {% if user.accessToTrademark %}checked{% endif %} type="checkbox" value="True" />  
+          <input class="form-check-input form-control" id="accessToTrademark" onchange="makeRequiredField()"
+            name="accessToTrademark" {% if user.accessToTrademark %}checked{% endif %} type="checkbox" value="True" />
         </div>
         <div class="mb-3 col-md-2">
         </div>
         <div class="mb-3 col-md-2">
           <label class="form-label">Read Only</label>
-          <input class="form-check-input form-control" name="perm" type="radio" {% if user.canReadOnly %}checked{% endif %} id="readOnly" value="readOnly" />  
+          <input class="form-check-input form-control" name="perm" onclick="makeRequiredField()" type="radio" {% if user.canReadOnly %}checked{% endif %} id="readOnly" value="readOnly" />
         </div>
         <div class="mb-3 col-md-2">
           <label class="form-label">Read & Write</label>
-          <input class="form-check-input form-control" name="perm" type="radio" {% if user.canReadWrite %}checked{% endif %} id="readWrite" value="readWrite"/>
+          <input class="form-check-input form-control" name="perm" onclick="makeRequiredField()" type="radio" {% if user.canReadWrite %}checked{% endif %} id="readWrite" value="readWrite" />
         </div>
         <div class="mb-3 col-md-2">
           <label class="form-label">Clear Permission</label>
-          <input class="form-check-input form-control" name="perm" type="radio" {% if not user.canReadWrite and not user.canReadOnly %}checked{% endif %} id="clearPerm" value="clearPerm" />
+          <input class="form-check-input form-control" name="perm" onclick="makeRequiredField()" type="radio" {% if not user.canReadWrite and not user.canReadOnly %}checked{% endif %} id="clearPerm" value="clearPerm" />
         </div>
         <div class="mt-2">
           <button type="submit" class="btn btn-primary me-2">Save</button>
@@ -284,30 +287,63 @@
     }
   });
 
- function makeRequiredField(){
-    let groupName = document.getElementById('groupName')
-    let accessToPendingWork = document.getElementById('accessToPendingWork')
-    let accessToAnnual = document.getElementById('accessToAnnual')
-    let accessToTrademark = document.getElementById('accessToTrademark')
+  function makeRequiredField() {
+    const groupName = document.getElementById('groupName').value.trim();
 
-    if (groupName.value === '' || groupName.value === null){
-      accessToPendingWork.required = false
-      accessToAnnual.required = false
-      accessToTrademark.required = false
+    const pending = document.getElementById('accessToPendingWork');
+    const annual = document.getElementById('accessToAnnual');
+    const trademark = document.getElementById('accessToTrademark');
+
+    const isGroupNameFilled = groupName !== '';
+    const isAnyCheckboxChecked = pending.checked || annual.checked || trademark.checked;
+
+    const permRadios = document.getElementsByName('perm');
+    let selectedPerm = '';
+    for (let radio of permRadios) {
+      if (radio.checked) {
+        selectedPerm = radio.value;
+        break;
+      }
     }
-    else {
-      if (!accessToPendingWork.checked && !accessToAnnual.checked && !accessToTrademark.checked){
-        accessToPendingWork.required = true
-        accessToAnnual.required = true
-        accessToTrademark.required = true
+
+    // Trigger validation if any of the conditions are true
+    const shouldValidate = isGroupNameFilled || isAnyCheckboxChecked || selectedPerm !== '';
+
+    if (shouldValidate) {
+      // Group name should be filled
+      document.getElementById('groupName').required = true;
+
+      // At least one checkbox must be checked
+      const checkboxRequired = !(pending.checked || annual.checked || trademark.checked);
+      pending.required = checkboxRequired;
+      annual.required = checkboxRequired;
+      trademark.required = checkboxRequired;
+
+      // Now validate permission selection
+      if (selectedPerm !== 'readOnly' && selectedPerm !== 'readWrite') {
+        // None or clearPerm selected → make user choose a valid one
+        readOnly.setCustomValidity("Please select Read Only or Read & Write");
+        readWrite.setCustomValidity("Please select Read Only or Read & Write");
+      } else {
+        // Valid permission selected
+        readOnly.setCustomValidity("");
+        readWrite.setCustomValidity("");
       }
-      else if (accessToAnnual.checked || accessToPendingWork.checked || accessToTrademark.checked){
-        accessToPendingWork.required = false
-        accessToAnnual.required = false
-        accessToTrademark.required = false
-      }
+    } else {
+      // If nothing is filled, make all optional
+      document.getElementById('groupName').required = false;
+      pending.required = false;
+      annual.required = false;
+      trademark.required = false;
+      readOnly.required = false;
+      readWrite.required = false;
     }
   }
+
+
+  window.onload = function () {
+    makeRequiredField();
+  };
 </script>
 <!--/ Bordered Table -->
 {% endblock container %}

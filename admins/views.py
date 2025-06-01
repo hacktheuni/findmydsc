@@ -54,6 +54,7 @@ def addUser(request):
         except UpdatedUser.DoesNotExist:
             messages.error(request, "User not found.")
             return redirect('adminSignIn')
+
         groups = UpdatedGroup.objects.filter(subAdminID=user.subAdminID).all()
         context = {
             'base': 'base/subAdminBase.html',
@@ -67,8 +68,9 @@ def addUser(request):
             userPhone = request.POST.get('userPhone')
             userUsername = request.POST.get('userUsername')
             userPassword = request.POST.get('userPassword')
-            groupName = request.POST.get('groupName')
-            perm = request.POST.get('perm')
+            groupName = request.POST.get('groupName', '').strip()
+            perm = request.POST.get('perm', '')
+
             accessToPendingWork = 'accessToPendingWork' in request.POST
             accessToAnnual = 'accessToAnnual' in request.POST
             accessToTrademark = 'accessToTrademark' in request.POST
@@ -77,7 +79,6 @@ def addUser(request):
             readWrite = False
             isClientUser = False
 
-            # Prepare form data to retain entered values in case of error
             form_data = {
                 'userName': userName,
                 'userPhone': userPhone,
@@ -85,6 +86,29 @@ def addUser(request):
                 'groupName': groupName,
                 'perm': perm
             }
+
+            isGroupNameFilled = bool(groupName)
+            isAnyCheckboxChecked = accessToPendingWork or accessToAnnual or accessToTrademark
+            isPermissionSelected = perm in ['readOnly', 'readWrite']
+
+            # Combined validation logic
+            if isGroupNameFilled or isAnyCheckboxChecked or perm:
+                if not isGroupNameFilled:
+                    messages.error(request, "Group name is required.")
+                    context['form_data'] = form_data
+                    return render(request, 'user/addUser.html', context)
+
+                if not isAnyCheckboxChecked:
+                    messages.error(request, "At least one page access permission is required.")
+                    context['form_data'] = form_data
+                    return render(request, 'user/addUser.html', context)
+
+                if not isPermissionSelected:
+                    messages.error(request, "Please select either Read Only or Read & Write as permission.")
+                    context['form_data'] = form_data
+                    return render(request, 'user/addUser.html', context)
+
+            # Fetch group object only if groupName is provided
             group_obj = None
             if groupName:
                 try:
@@ -100,12 +124,7 @@ def addUser(request):
                     context['form_data'] = form_data
                     return render(request, 'user/addUser.html', context)
 
-                if not accessToAnnual and not accessToPendingWork and not accessToTrademark:
-                    messages.error(request, "One of the page access is required.")
-                    context['form_data'] = form_data
-                    return render(request, 'user/addUser.html', context)
-                
-            # Check if all fields are filled
+            # Required fields check
             if not userName or not userPhone or not userUsername or not userPassword:
                 messages.error(request, "All fields are required.")
                 context['form_data'] = form_data
@@ -177,11 +196,11 @@ def addUser(request):
             userHistory.save()
 
             messages.success(request, "User added successfully.")
-            return HttpResponseRedirect(reverse('listUser'))
+            return redirect('listUser')
 
         return render(request, 'user/addUser.html', context)
     else:
-        messages.error(request, "Only Admin have the permission.")
+        messages.error(request, "Only Admin has permission.")
         return redirect('adminSignIn')
 
 @allow_only_client_users
@@ -194,8 +213,13 @@ def updateUser(request, userID):
         except SignUP.DoesNotExist:
             messages.error(request, "SubAdmin not found.")
             return redirect('adminSignIn')
-        userHistory = HistoryUser.objects.filter(subAdminID=subAdmin.subAdminID, userID=userID).all().order_by('-userModifiedDate')
+        except UpdatedUser.DoesNotExist:
+            messages.error(request, "User not found.")
+            return redirect('adminSignIn')
+
+        userHistory = HistoryUser.objects.filter(subAdminID=subAdmin.subAdminID, userID=userID).order_by('-userModifiedDate')
         groups = UpdatedGroup.objects.filter(subAdminID=user.subAdminID).all()
+
         context = {
             'base': 'base/subAdminBase.html',
             'user': user,
@@ -219,6 +243,15 @@ def updateUser(request, userID):
             readWrite = False
             isClientUser = False
 
+            form_data = {
+                'userName': userName,
+                'userPhone': userPhone,
+                'userUsername': userUsername,
+                'groupName': groupName,
+                'perm': perm
+            }
+            context['form_data'] = form_data
+
             group_obj = None
             if groupName:
                 try:
@@ -231,48 +264,47 @@ def updateUser(request, userID):
                         isClientUser = True
                 except UpdatedGroup.DoesNotExist:
                     messages.error(request, "Group not found.")
-                    return render(request.path)
+                    return render(request, 'user/updateUser.html', context)
 
                 if not accessToAnnual and not accessToPendingWork and not accessToTrademark:
-                    messages.error(request, "One of the page access is required.")
-                    return render(request.path)
-                
-            # Check if all fields are filled
+                    messages.error(request, "At least one page access is required.")
+                    return render(request, 'user/updateUser.html', context)
+
+            # Empty field check
             if not userName or not userPhone or not userUsername:
                 messages.error(request, "All fields are required.")
-                return redirect(request.path)
+                return render(request, 'user/updateUser.html', context)
 
-            # 1. Name validation: only letters and spaces
+            # Name validation
             if not re.match(r'^[A-Za-z\s]+$', userName):
                 messages.error(request, "Name can only contain letters and spaces.")
-                return redirect(request.path)
+                return render(request, 'user/updateUser.html', context)
 
-            # 2. Phone number validation: exactly 10 digits
+            # Phone validation
             if not re.match(r'^\d{10}$', userPhone):
                 messages.error(request, "Phone number must be exactly 10 digits.")
-                return redirect(request.path)
+                return render(request, 'user/updateUser.html', context)
 
-            # 4. Password validation: minimum 8 characters, letters and numbers
-            if userPassword != '':
-                if len(userPassword) < 8 or not re.search(r'[A-Za-z]', userPassword) or not re.search(r'\d', userPassword):
-                    messages.error(request, "Password must be at least 8 characters long and contain both letters and numbers.")
-                    return redirect(request.path)
-            
-            # Check if phone number already exists for another user (exclude current user)
+            # Password validation (if updating)
+            if userPassword:
+                if len(userPassword) < 8 or not re.search(r'[A-Za-z]', userPassword) or not re.search(r'\d', userPassword) or not re.search(r'[@$!%*?&#]', userPassword):
+                    messages.error(request, "Password must be at least 8 characters long and contain letters, numbers, and special characters (@, $, !, %, *, ?, &, #).")
+                    return render(request, 'user/updateUser.html', context)
+
+            # Uniqueness checks
             if UpdatedUser.objects.filter(subAdminID=subAdmin.subAdminID, userPhone=userPhone).exclude(userID=userID).exists():
                 messages.error(request, "Phone number already exists.")
-                return redirect(request.path)
+                return render(request, 'user/updateUser.html', context)
 
-            # Check if username already exists for another user (exclude current user)
             if UpdatedUser.objects.filter(subAdminID=subAdmin.subAdminID, userUsername=userUsername).exclude(userID=userID).exists():
                 messages.error(request, "Username already exists.")
-                return redirect(request.path)
+                return render(request, 'user/updateUser.html', context)
 
-            # Update the user
+            # Update user
             user.userName = userName
             user.userPhone = userPhone
             user.userUsername = userUsername
-            if userPassword != '':
+            if userPassword:
                 user.userPassword = make_password(userPassword)
             user.groupID = group_obj
             user.isClientUser = isClientUser
@@ -281,17 +313,16 @@ def updateUser(request, userID):
             user.accessToPendingWork = accessToPendingWork
             user.accessToAnnual = accessToAnnual
             user.accessToTrademark = accessToTrademark
-
             user.save()
 
-            # Create/update user history
+            # Add history
             userHistory = HistoryUser(
-                subAdminID=user.subAdminID, 
-                userID=user, 
-                userName=user.userName, 
-                userPhone=user.userPhone, 
-                userUsername=user.userUsername, 
-                userPassword=user.userPassword, 
+                subAdminID=user.subAdminID,
+                userID=user,
+                userName=user.userName,
+                userPhone=user.userPhone,
+                userUsername=user.userUsername,
+                userPassword=user.userPassword,
                 userModifiedDate=user.userModifiedDate,
                 groupID=user.groupID,
                 isClientUser=user.isClientUser,
@@ -305,10 +336,11 @@ def updateUser(request, userID):
 
             messages.success(request, "User updated successfully.")
             return redirect(request.path)
-        
-        return render(request, 'user/updateUser.html', context)   
+
+        return render(request, 'user/updateUser.html', context)
+
     else:
-        messages.error(request, "Only Admin have the permission.")
+        messages.error(request, "Only Admin has the permission.")
         return redirect('adminSignIn')
 
 @allow_only_client_users
