@@ -8,24 +8,28 @@
     <div class="col-12">
         <ul class="nav nav-pills flex-column flex-md-row mb-3">
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'updateProfile' %}"><i class="bx bxs-user menu-icon tf-icons"></i> Profile
+                <a class="nav-link" href="{% url 'updateProfile' %}"><i class="bx bxs-user menu-icon tf-icons"></i>
+                    Profile
                     Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'subscriptionDetails' %}"><i class="bx bxs-bell menu-icon tf-icons"></i> Subscription
+                <a class="nav-link" href="{% url 'subscriptionDetails' %}"><i
+                        class="bx bxs-bell menu-icon tf-icons"></i> Subscription
                     Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'updatePassword' %}"><i class="bx bxs-key menu-icon tf-icons"></i> Update
+                <a class="nav-link" href="{% url 'updatePassword' %}"><i class="bx bxs-key menu-icon tf-icons"></i>
+                    Update
                     Password</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link active" href="{% url 'exportData' %}"><i class="bx bxs-file-export menu-icon tf-icons"></i> Export Data</a>
+                <a class="nav-link active" href="{% url 'exportData' %}"><i
+                        class="bx bxs-file-export menu-icon tf-icons"></i> Export Data</a>
             </li>
         </ul>
     </div>
     <div class="row">
-        <div class="col-6">
+        <div class="col-12">
             <div class="card mb-4">
                 <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
                     <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)"><i
@@ -34,28 +38,44 @@
                 <h4 class="card-header">Export Data</h4>
                 <!-- Account -->
                 <div class="card-body">
+                    <h5>Exported Workbook data (CSV):</h5>
                     <div class="row">
-                        <h5>Export the following data to csv file:</h5>
-                        <ul style="padding-left: 4rem;">
-                            <li>Group Name</li>
-                            <li>Company name</li>
-                            <li>Client name</li>
-                            <li>Status</li>
-                            <li>Location </li>
-                            <li>Renewal date </li>
-                            <li>Contact person</li>
-                            <li>Phone number</li>
-                            <li>Last modified date</li>
-                            <li>Last received by</li>
-                            <li>Last received from</li>
-                            <li>Last delivered by</li>
-                            <li>Last delivery to</li>
-                        </ul>
-                        <div style="padding-left: 3rem;">
-                            <form action="{% url 'exportToExcel' %}" method="get">
-                                <button class="btn btn-outline-primary" type="submit">Export to CSV</button>
-                            </form>
+                        <div class="col">
+                            <ul style="padding-left: 4rem;">
+                                <li>
+                                    <strong>DSCs Sheet</strong>
+                                </li>
+                                <li>
+                                    <strong>Pending Work Sheet</strong>
+                                </li>
+                                <li>
+                                    <strong>Pending Work Archived Sheet</strong>
+                                </li>
+                                <li>
+                                    <strong>Annual Filing Sheet</strong>
+                                </li>
+                                <li>
+                                    <strong>Annual Filing Archived Sheet</strong>
+                                </li>
+                                <li>
+                                    <strong>Pending Work Report Sheet</strong>
+                                </li>
+                                <li>
+                                    <strong>Annual Filing Report Sheet</strong>
+                                </li>
+                                <li>
+                                    <strong>Trademark Sheet</strong>
+                                </li>
+                                <li>
+                                    <strong>Trademark Archived Sheet</strong>
+                                </li>
+                            </ul>
                         </div>
+                    </div>
+                    <div style="padding-left: 3rem;">
+                        <form action="{% url 'exportToExcel' %}" method="get">
+                            <button class="btn btn-outline-primary" type="submit">Export to CSV</button>
+                        </form>
                     </div>
                 </div>
             </div>

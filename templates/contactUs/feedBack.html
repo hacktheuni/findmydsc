@@ -89,7 +89,7 @@
                         </span>
                     </div>
                 </div>
-
+                {% if subAdmin and not subAdmin.freeUser %}
                 <div class="row mt-5">
                     <div class="row">
                         <h3 class="text-center">FINDMYDSC HELPKIT</h3>
@@ -144,9 +144,6 @@
                             <li>In case entity doesn’t have any specific group then you can tag NONE as entity group.
                             </li>
                             <li>System will not allow saving Same Company Name tagged with Same Group.</li>
-                            <li>In case same entity name belongs in different group, then that can be saved by tagging
-                                with
-                                different group.</li>
                         </ul>
 
                         <h4>1.3 Phone Book:</h4>
@@ -180,6 +177,7 @@
                     </div>
 
                 </div>
+                {% endif %}
             </div>
         </div>
     </div>

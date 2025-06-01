@@ -133,7 +133,7 @@ def allow_only_client_users(view_func):
                     return view_func(request, *args, **kwargs)
 
                 allowed_views_subAdmin = [
-                    'listDSC', 'addDSC', 'updateDSC', 'deleteDSC', 'listGroup', 'addGroup', 'updateGroup', 'deleteGroup', 'listCompany', 'addCompany', 'updateCompany', 'deleteCompany', 'feedBack', 'updatePassword' 
+                    'listDSC', 'addDSC', 'updateDSC', 'deleteDSC', 'listGroup', 'addGroup', 'updateGroup', 'deleteGroup', 'listCompany', 'addCompany', 'updateCompany', 'deleteCompany', 'feedBack', 'updatePassword', 'updateProfile', 'deleteProfile'
                 ]
 
                 # Check if current view function is allowed
@@ -415,24 +415,32 @@ def addDSC(request):
     base = user_data.get('base')
 
     try:
-        # Fetch the user's subscription plan
-        subscription_plan = SubAdminSubscription.objects.get(subAdminID=user.subAdminID, isActive='True')
-        subscription_plan_name = subscription_plan.planID.planName.lower()
-        if subscription_plan_name == 'free trial':
-            max_dsc_allowed = 100
-        elif subscription_plan_name == 'basic':
-            max_dsc_allowed = 350
-        elif subscription_plan_name == 'standard':
-            max_dsc_allowed = 700
-        elif subscription_plan_name == 'premimum':
-            max_dsc_allowed = 1500
-        elif subscription_plan_name == 'premimum plus':
-            max_dsc_allowed = float('inf')
-        else:
-            max_dsc_allowed = 0  # fallback if plan is somehow invalid
-    except SubAdminSubscription.DoesNotExist:
-        messages.error(request, "Subscription plan not found.")
+        subAdmin = SignUP.objects.get(subAdminID=user.subAdminID.subAdminID)
+    except SignUP.DoesNotExist:
+        messages.error(request, "SubAdmin not found.")
         return redirect('listDSC')
+    if not subAdmin.freeUser:
+        try:
+            # Fetch the user's subscription plan
+            subscription_plan = SubAdminSubscription.objects.get(subAdminID=user.subAdminID, isActive='True')
+            subscription_plan_name = subscription_plan.planID.planName.lower()
+            if subscription_plan_name == 'free trial':
+                max_dsc_allowed = 100
+            elif subscription_plan_name == 'basic':
+                max_dsc_allowed = 350
+            elif subscription_plan_name == 'standard':
+                max_dsc_allowed = 700
+            elif subscription_plan_name == 'premimum':
+                max_dsc_allowed = 1500
+            elif subscription_plan_name == 'premimum plus':
+                max_dsc_allowed = float('inf')
+            else:
+                max_dsc_allowed = 0  # fallback if plan is somehow invalid
+        except SubAdminSubscription.DoesNotExist:
+            messages.error(request, "Subscription plan not found.")
+            return redirect('listDSC')
+    else:
+        max_dsc_allowed = float('inf')  # Free users can add unlimited DSCs
 
     existing_dsc_count = UpdatedDSC.objects.filter(subAdminID=user.subAdminID).count()
     companies = query(user, UpdatedCompany).all()
@@ -2426,9 +2434,6 @@ def updatePassword(request):
     superAdmin = user_data.get('superAdmin')
     base = user_data.get('base')
     
-    if subAdmin:
-        user = None
-
     if request.method == 'POST':
         oldPassword = request.POST.get('oldPassword')
         newPassword = request.POST.get('newPassword')
@@ -2442,7 +2447,7 @@ def updatePassword(request):
                     re.search(r'[@$!%*?&#]', password))
 
         # Check if it's a user or subAdmin updating their password
-        if user:
+        if user.isActive:
             if check_password(oldPassword, user.userPassword):
                 if newPassword == confirmPassword:
                     if validate_new_password(newPassword):
@@ -2496,11 +2501,13 @@ def updatePassword(request):
 def feedBack(request):
     user_data = getUser(request)
     user = user_data.get('user')
+    subAdmin = user_data.get('subAdmin')
     base = user_data.get('base')
 
     context = {
         'base': base,
         'user': user,
+        'subAdmin': subAdmin,
     }
     if request.method == 'POST':
         rating = request.POST.get('rating')

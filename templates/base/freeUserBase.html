@@ -84,6 +84,25 @@
                 <div>DSCs</div>
               </a>
             </li>
+            <li class="menu-item {% block myProfileActive %} {% endblock myProfileActive %}">
+              <a href="" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bxs-user-account"></i>
+                <div>My Profile</div>
+              </a>
+              <ul class="menu-sub">
+                <li class="menu-item {% block adminActive %} {% endblock adminActive %}">
+                  <a href="{% url 'updateProfile' %}" class="menu-link">
+                    <div>Admin Details</div>
+                  </a>
+                </li>
+                <li class="menu-item {% block passActive %} {% endblock passActive %} ">
+                  <a href="{% url 'updatePassword' %}" class="menu-link">
+                    <div>Change Password</div>
+                  </a>
+                </li>
+              </ul>
+            </li>
+
             <li class="menu-item {% block contactActive %} {% endblock contactActive %}">
               <a href="" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bxs-conversation"></i>
@@ -96,12 +115,6 @@
                   </a>
                 </li>
               </ul>
-            </li>
-            <li class="menu-item {% block passActive %} {% endblock passActive %} ">
-              <a href="{% url 'updatePassword' %}" class="menu-link">
-                <i class="menu-icon tf-icons bx bxs-key"></i>
-                <div>Change Password</div>
-              </a>
             </li>
             <li class="menu-item" style="position: fixed; bottom: 0px;">
               <a href="{% url 'logOut' %}" class="menu-link">

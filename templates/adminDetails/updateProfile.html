@@ -6,6 +6,7 @@
 
 <div class="row">
     <div class="col-md-12">
+        {% if subAdmin and not subAdmin.freeUser %}
         <ul class="nav nav-pills flex-column flex-md-row mb-3">
             <li class="nav-item">
                 <a class="nav-link active" href="{% url 'updateProfile' %}"><i class="bx bxs-user menu-icon tf-icons"></i> Profile
@@ -23,6 +24,7 @@
                 <a class="nav-link" href="{% url 'exportData' %}"><i class="bx bxs-file-export menu-icon tf-icons"></i> Export Data</a>
             </li>
         </ul>
+        {% endif %}
         <div class="card mb-4">
             <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
                 <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)"><i class="bx bx-menu bx-sm"></i></a>

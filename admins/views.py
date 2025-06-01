@@ -13,7 +13,7 @@ from django.utils import timezone
 from datetime import timedelta
 import openpyxl
 from openpyxl.utils import get_column_letter
-from user.views import allow_only_client_users
+from user.views import allow_only_client_users, getUser
 
 # User All Function are here for SubAdmin
 @allow_only_client_users
@@ -336,13 +336,13 @@ def deleteUser(request):
 
 @allow_only_client_users 
 def updateProfile(request):
-    subAdminID = request.session.get('subAdminID')
-    if subAdminID:
-        subAdmin = SignUP.objects.get(subAdminID=subAdminID)
-        user = UpdatedUser.objects.get(userPhone=subAdmin.subAdminPhone, isActive=False)
-        
+    user_data = getUser(request)
+    user = user_data.get('user')
+    subAdmin = user_data.get('subAdmin')
+    base = user_data.get('base')
+    if subAdmin:
         context = {
-            'base': 'base/subAdminBase.html',
+            'base': base,
             'subAdmin': subAdmin,
             'user': user,
             'options': ["Company/ LLP", "Chartered Accountant", "Company Secretary", "Cost Accountant", "Others"]
@@ -401,19 +401,16 @@ def updateProfile(request):
 
 @allow_only_client_users
 def deleteProfile(request):
+    subAdmin = getUser(request).get('subAdmin')
     if request.method == 'POST':
         deleteProfile = request.POST.get('deleteProfile')
         subAdminPassword = request.POST.get('subAdminPassword')
-        subAdminID = request.session.get('subAdminID')
 
         if deleteProfile:
             try:
-                # Retrieve the subAdmin profile
-                profile = SignUP.objects.get(subAdminID=subAdminID)
-
                 # Check if the provided password matches the hashed password
-                if check_password(subAdminPassword, profile.subAdminPassword):
-                    profile.delete()  # Delete the profile if the password matches
+                if check_password(subAdminPassword, subAdmin.subAdminPassword):
+                    subAdmin.delete()  # Delete the profile if the password matches
                     # Clear all session data
                     request.session.flush()
                     messages.success(request, "Your Account is Deleted.")
@@ -492,7 +489,7 @@ def exportToExcel(request):
         return redirect('adminSignIn')
 
     subAdmin = SignUP.objects.get(subAdminID=sub_admin_id)
-    filename = f"{subAdmin.subAdminName}_data.xlsx"
+    filename = f"{subAdmin.subAdminName} data.xlsx"
 
     # Create an Excel workbook
     wb = openpyxl.Workbook()
@@ -684,41 +681,14 @@ def exportToExcel(request):
             ])
 
     # ================================
-    # 8 **Trademark Archived SHEET**
+    # 8 **Trademark SHEET**
     # ================================
-    ws6 = wb.create_sheet(title="Trademark Archived")
-    ws6.append(['SRN No.', 'Name of Trademark', 'Name of Applicant', 'Group', 'Application No.', 'Class ', 'Date of Application', 'Current Status 1', 'Current Status 2', 'Remarks', 'Notice Receive / Serve Date', 'Reply Due Date', 'Fees Amt.', 'Hearing Date', 'Renewal Date', 'Fees Received'])
-
-    trademarks = Trademark.objects.filter(subAdminID=sub_admin_id, isArchived=True).all()
-    for tm in trademarks:
-        ws6.append([
-            tm.indexSRN,
-            tm.nameOfTrademark,
-            tm.nameOfApplicant,
-            tm.groupID.groupName,
-            tm.applicationNo,
-            tm.classNo,
-            tm.dateOfApp,
-            tm.status1,
-            tm.status2,
-            tm.remark,
-            tm.oppDate,
-            tm.lastDate,
-            tm.fees,
-            tm.hearingDate,
-            tm.expiryDate,
-            tm.feesStatus,
-        ])
-
-    # ================================
-    # 9 **Trademark SHEET**
-    # ================================
-    ws6 = wb.create_sheet(title="Trademark")
-    ws6.append(['SRN No.', 'Name of Trademark', 'Name of Applicant', 'Group', 'Application No.', 'Class ', 'Date of Application', 'Current Status 1', 'Current Status 2', 'Remarks', 'Notice Receive / Serve Date', 'Reply Due Date', 'Fees Amt.', 'Hearing Date', 'Renewal Date', 'Fees Received'])
+    ws8 = wb.create_sheet(title="Trademark")
+    ws8.append(['SRN No.', 'Name of Trademark', 'Name of Applicant', 'Group', 'Application No.', 'Class ', 'Date of Application', 'Current Status 1', 'Current Status 2', 'Remarks', 'Notice Receive / Serve Date', 'Reply Due Date', 'Fees Amt.', 'Hearing Date', 'Renewal Date', 'Fees Received'])
 
     trademarks = Trademark.objects.filter(subAdminID=sub_admin_id, isArchived=False).all()
     for tm in trademarks:
-        ws6.append([
+        ws8.append([
             tm.indexSRN,
             tm.nameOfTrademark,
             tm.nameOfApplicant,
@@ -736,6 +706,37 @@ def exportToExcel(request):
             tm.expiryDate,
             tm.feesStatus,
         ])
+
+
+
+    # ================================
+    # 9 **Trademark Archived SHEET**
+    # ================================
+    ws9 = wb.create_sheet(title="Trademark Archived")
+    ws9.append(['SRN No.', 'Name of Trademark', 'Name of Applicant', 'Group', 'Application No.', 'Class ', 'Date of Application', 'Current Status 1', 'Current Status 2', 'Remarks', 'Notice Receive / Serve Date', 'Reply Due Date', 'Fees Amt.', 'Hearing Date', 'Renewal Date', 'Fees Received'])
+
+    trademarks = Trademark.objects.filter(subAdminID=sub_admin_id, isArchived=True).all()
+    for tm in trademarks:
+        ws9.append([
+            tm.indexSRN,
+            tm.nameOfTrademark,
+            tm.nameOfApplicant,
+            tm.groupID.groupName,
+            tm.applicationNo,
+            tm.classNo,
+            tm.dateOfApp,
+            tm.status1,
+            tm.status2,
+            tm.remark,
+            tm.oppDate,
+            tm.lastDate,
+            tm.fees,
+            tm.hearingDate,
+            tm.expiryDate,
+            tm.feesStatus,
+        ])
+
+    
 
     # Auto-adjust column width for better readability
     for sheet in wb.worksheets:
@@ -757,18 +758,11 @@ def exportToExcel(request):
     response['Content-Disposition'] = f'attachment; filename={filename}'
     wb.save(response)
 
-    request.session['export_message'] = "Data exported successfully."
-    request.session['export_message_level'] = messages.SUCCESS
     return response
 
 @allow_only_client_users            
 def exportData(request):
     if request.session.get('subAdminID'):
-        # Display any success or error messages set in the session
-        message = request.session.pop('export_message', None)
-        message_level = request.session.pop('export_message_level', None)
-        if message:
-            messages.add_message(request, message_level, message)
         
         context = {
             'base': 'base/subAdminBase.html'
