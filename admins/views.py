@@ -329,7 +329,7 @@ def deleteUser(request):
         else:
             messages.error(request, "Deletion not confirmed.")
 
-    return redirect('subAdminListUser')
+    return redirect('listUser')
 
 
 # All profile related Function are here for subAdmin
