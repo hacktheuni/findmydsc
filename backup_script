@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# Set the backup directory and database details
+BACKUP_DIR="/home/ubuntu/backup_findmydscdb/backup_dir"
+DB_NAME="findmydscdb"
+DB_USER="findmydscdbAdmin"
+DB_PASS="jayThan05$"
+NEW_BACKUP="${BACKUP_DIR}/current_backup.sql"
+LAST_BACKUP_HASH_FILE="${BACKUP_DIR}/last_backup_hash.txt"
+
+# Generate a new hash by querying the database directly, excluding metadata
+NEW_HASH=$(mysqldump --no-tablespaces --skip-comments -u ${DB_USER} -p${DB_PASS} ${DB_NAME} | md5sum | awk '{print $1}')
+
+# Check if a previous hash exists
+if [ -f "${LAST_BACKUP_HASH_FILE}" ]; then
+    LAST_HASH=$(cat ${LAST_BACKUP_HASH_FILE})
+else
+    LAST_HASH=""
+fi
+
+# Compare the new hash with the last hash
+if [ "${NEW_HASH}" != "${LAST_HASH}" ]; then
+    # Only if there's a change, create a backup
+    TIMESTAMP=$(date +%F_%T)
+    BACKUP_FILENAME="${BACKUP_DIR}/backup_${TIMESTAMP}.sql"
+    COMPRESSED_BACKUP="${BACKUP_FILENAME}.tar.xz"
+
+    # Run mysqldump and save the new backup
+    mysqldump --no-tablespaces --skip-comments -u ${DB_USER} -p${DB_PASS} ${DB_NAME} > ${BACKUP_FILENAME}
+
+    # Compress the SQL backup file to .tar.xz format
+    tar -cJf "${COMPRESSED_BACKUP}" -C "${BACKUP_DIR}" "$(basename ${BACKUP_FILENAME})"
+# Remove the uncompressed SQL file to save space
+    rm ${BACKUP_FILENAME}
+
+    # Update the last hash file with the new hash
+    echo "${NEW_HASH}" > ${LAST_BACKUP_HASH_FILE}
+
+    # Delete old backups except the most recent compressed file
+    find ${BACKUP_DIR} -type f -name 'backup_*.tar.xz' ! -name "$(basename ${COMPRESSED_BACKUP})" -exec rm {} \;
+
+    echo "Database changed. New compressed backup created: ${COMPRESSED_BACKUP}"
+
+    # Push the compressed backup file to GitHub
+    cd ${BACKUP_DIR}
+    git add -A
+    git commit -m "Compressed backup on ${TIMESTAMP}"
+    git push origin main  # Replace 'main' with your branch name if different
+
+else
+    echo "No changes detected. No new backup created."
+fi
