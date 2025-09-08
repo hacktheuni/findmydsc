@@ -14,7 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', get_random_secret_key())
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 # Allowed hosts for production
 ALLOWED_HOSTS = ['findmydsc.in', 'www.findmydsc.in']
@@ -63,21 +63,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'findMyDSC.wsgi.application'
 
-# Database settings (example using PostgreSQL, adjust if necessary)
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': os.getenv('DB_NAME'),
-#         'USER': os.getenv('DB_USER'),
-#         'PASSWORD': os.getenv('DB_PASSWORD'),
-#         'HOST': os.getenv('DB_HOST'),
-#         'PORT': os.getenv('DB_PORT', '3306'),
-#     }
-# }
+Database settings (example using PostgreSQL, adjust if necessary)
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT', '3306'),
     }
 }
 
@@ -116,15 +110,15 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 # Security configurations for production
-# SECURE_SSL_REDIRECT = True  # Redirect all HTTP requests to HTTPS
-# SESSION_COOKIE_SECURE = True  # Ensure session cookies are sent over HTTPS
-# CSRF_COOKIE_SECURE = True  # Ensure CSRF cookies are sent over HTTPS
-# SECURE_HSTS_SECONDS = 3600  # Use HSTS to enforce HTTPS
-# SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-# SECURE_HSTS_PRELOAD = True
-# SECURE_BROWSER_XSS_FILTER = True  # XSS protection
-# X_FRAME_OPTIONS = 'DENY'  # Prevent Clickjacking
-# SECURE_CONTENT_TYPE_NOSNIFF = True  # Prevent MIME sniffing
+SECURE_SSL_REDIRECT = True  # Redirect all HTTP requests to HTTPS
+SESSION_COOKIE_SECURE = True  # Ensure session cookies are sent over HTTPS
+CSRF_COOKIE_SECURE = True  # Ensure CSRF cookies are sent over HTTPS
+SECURE_HSTS_SECONDS = 3600  # Use HSTS to enforce HTTPS
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+SECURE_BROWSER_XSS_FILTER = True  # XSS protection
+X_FRAME_OPTIONS = 'DENY'  # Prevent Clickjacking
+SECURE_CONTENT_TYPE_NOSNIFF = True  # Prevent MIME sniffing
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
